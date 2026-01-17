@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { levels } from "../../levels";
 import { PolicyEditor } from "../editor/PolicyEditor";
 import { InputViewer } from "../editor/InputViewer";
@@ -6,20 +6,21 @@ import { Console } from "../game/Console";
 import { LevelSelect } from "../game/LevelSelect";
 import { WinModal } from "../game/WinModal";
 import { Play, Lightbulb } from "lucide-react";
+import { useGameStore } from "../../store/gameStore";
 
 export default function Dashboard() {
-    const [currentLevelId, setCurrentLevelId] = useState(levels[0].id);
-    const [code, setCode] = useState(levels[0].initialCode);
+    const { currentLevelId, completedLevels, setCurrentLevel, completeLevel } = useGameStore();
+
+    // Local state for the editor content and UI
+    const currentLevel = levels.find(l => l.id === currentLevelId) || levels[0];
+    const [code, setCode] = useState(currentLevel.initialCode);
     const [logs, setLogs] = useState<{ type: 'info' | 'success' | 'error'; message: string; timestamp: string }[]>([]);
     const [showWinModal, setShowWinModal] = useState(false);
-    const [completedLevels] = useState<string[]>([]); // Placeholder for store_
 
-    const currentLevel = levels.find(l => l.id === currentLevelId) || levels[0];
-
-    const handleLevelSelect = (id: string) => {
-        const level = levels.find(l => l.id === id);
+    // Sync code when level changes
+    useEffect(() => {
+        const level = levels.find(l => l.id === currentLevelId);
         if (level) {
-            setCurrentLevelId(id);
             setCode(level.initialCode);
             setLogs([{
                 type: 'info',
@@ -27,12 +28,16 @@ export default function Dashboard() {
                 timestamp: new Date().toLocaleTimeString()
             }]);
         }
+    }, [currentLevelId]);
+
+    const handleLevelSelect = (id: string) => {
+        setCurrentLevel(id);
     };
 
     const handleNextLevel = () => {
         const currentIndex = levels.findIndex(l => l.id === currentLevelId);
         if (currentIndex < levels.length - 1) {
-            handleLevelSelect(levels[currentIndex + 1].id);
+            setCurrentLevel(levels[currentIndex + 1].id);
             setShowWinModal(false);
         }
     };
@@ -94,10 +99,9 @@ export default function Dashboard() {
             if (allPassed) {
                 addLog('success', '🎉 All tests passed! Level cleared.');
 
-                // Unlock next level if needed
+                // Unlock next level and save progress
                 if (!completedLevels.includes(currentLevelId)) {
-                    // In a real app we'd update the store here
-                    // setCompletedLevels(prev => [...prev, currentLevelId]);
+                    completeLevel(currentLevelId);
                 }
 
                 setShowWinModal(true);
