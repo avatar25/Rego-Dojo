@@ -1,108 +1,122 @@
 # 🏯 Rego Dojo
 
-**The Gamified OPA Training Ground.**
+> **The Gamified Open Policy Agent Training Ground.**  
+> *Master Policy-as-Code. Level up your security skills.*
 
-Rego Dojo is a browser-based educational game designed to teach developers how to write **Open Policy Agent (OPA)** policies through interactive, puzzle-solving challenges. Unlike traditional playgrounds, Rego Dojo offers a structured "campaign" where you must fix broken policies to unlock higher levels.
+![Rego Dojo Dashboard Mockup](https://raw.githubusercontent.com/open-policy-agent/opa/main/docs/media/opa-logo-transparent.png)
 
-![Vibe: Cyber-punk interface, fast feedback, highly visual. "Duolingo meets HackTheBox."](https://img.shields.io/badge/Vibe-Cyber--punk-emerald)
-![Tech Stack: React 19, Vite, OPA WASM, Go](https://img.shields.io/badge/Tech-React19%20%7C%20Vite%20%7C%20OPA--WASM-blue)
+Rego Dojo is an interactive, browser-based game designed to teach **Open Policy Agent (OPA)** policy authoring. Unlike a standard playground, it offers a structured **campaign mode** where you solve security puzzles to unlock new levels.
+
+![Status](https://img.shields.io/badge/Status-Beta-emerald)
+![Tech](https://img.shields.io/badge/Stack-React%20%7C%20Vite%20%7C%20Go%20%7C%20WASM-blue)
+![License](https://img.shields.io/badge/License-MIT-slate)
 
 ---
 
-## 🚀 The Core Concept
+## 🚀 Features
 
-Rego Dojo leverages a modern, serverless architecture to provide a seamless learning experience:
+- **🎮 Interactive Campaign**: Progress through levels ranging from basic equality checks to complex K8s admission control logic.
+- **⚡️ Client-Side Evaluation**: Policies are compiled to **WebAssembly (WASM)** and evaluated directly in your browser for instant feedback.
+- **🛡️ Serverless Compiler**: A lightweight Go backend handles the heavy lifting of compiling Rego code to WASM.
+- **💾 Auto-Save**: Your progress (completed levels) is persisted automatically so you can pick up where you left off.
+- **💅 Modern UI**: Built with a sleek, dark-themed interface using **Tailwind CSS**, **Framer Motion**, and **Monaco Editor**.
 
-1.  **Select a Level**: Choose from a variety of scenarios (e.g., "Level 1: The Bouncer").
-2.  **Analyze & Code**: Examine the provided JSON `Input` and identify issues in the "Broken" `Rego Policy` using the embedded **Monaco Editor**.
-3.  **Compile & Evaluate**: Your code is compiled to **WebAssembly (WASM)** via a Go-based Vercel Function and evaluated directly in your browser.
-4.  **Level Up**: Match the "Win Conditions" to unlock the next challenge and earn achievements.
+---
+
+## 🕹️ How to Play
+
+1.  **Select a Level**: Start with "The Bouncer" (Level 1) to learn the basics.
+2.  **Write Policy**: Use the editor on the left to write Rego code that satisfies the requirements.
+    - *Goal*: Allow valid requests while denying invalid ones.
+3.  **Inspect Input**: Analyze the JSON input on the right to understand the data structure.
+4.  **Evaluate**: Click **evaluate** (or press `Cmd+Enter`) to run your policy against a suite of hidden test cases.
+5.  **Level Up**: Passing all tests unlocks the next challenge!
 
 ---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 19 (Vite) + TypeScript
-- **Styling**: Tailwind CSS v4 (Dark mode, Slate/Emerald/Rose palette)
-- **Editor**: `@monaco-editor/react` (VS Code experience)
-- **Policy Engine**: `@open-policy-agent/opa-wasm`
-- **Backend (Compiler)**: Go (running on Vercel Serverless Functions)
-- **State Management**: `zustand`
-- **Visuals**: `framer-motion` & `canvas-confetti`
+### Frontend
+-   **React 19**: The latest and greatest for UI logic.
+-   **Vite**: Blazing fast build tool.
+-   **Tailwind CSS v4**: Utility-first styling with a custom dark theme.
+-   **Zustand**: Lightweight global state management for tracking game progress.
+-   **Monaco Editor**: VS Code-like editing experience in the browser.
+
+### Backend & Core
+-   **Go 1.24**: Powers the API.
+-   **OPA v1 SDK**: Used to compile Rego strings into executable WASM binaries.
+-   **WebAssembly**: The compiled policies run entirely in the browser using `@open-policy-agent/opa-wasm`.
 
 ---
 
-## 📁 Directory Structure
+## 👩‍💻 Local Development
 
-```plaintext
-rego-dojo/
-├── api/                        # Vercel Serverless Functions (Go)
-│   └── compile.go              # Rego string -> WASM binary compiler
-├── src/
-│   ├── components/
-│   │   ├── editor/             # PolicyEditor & InputViewer
-│   │   ├── game/               # LevelSelect, WinModal, Console
-│   │   └── layout/             # Core Dashboard layout
-│   ├── levels/                 # THE CONTENT CORE (Level Definitions)
-│   ├── lib/                    # OPA wrappers and shared Types
-│   ├── store/                  # Zustand progress tracking
-│   ├── App.tsx                 # Main entry component
-│   └── main.tsx                # React mount point
-├── go.mod                      # API dependencies
-├── package.json                # Frontend dependencies
-└── vercel.json                 # Vercel deployment config
+Clone the project and get started in minutes.
+
+### Prerequisites
+-   Node.js v18+
+-   Go 1.24+ (for the compilation API)
+
+### 1. Installation
+```bash
+git clone https://github.com/your-username/rego-dojo.git
+cd rego-dojo
+npm install
+```
+
+### 2. Run the App
+To run both the frontend and the backend API locally, use the Vercel CLI (recommended) or run them separately.
+
+**Using Vercel CLI:**
+```bash
+vercel dev
+```
+
+**Manual Setup:**
+1.  Start the frontend:
+    ```bash
+    npm run dev
+    ```
+2.  (Optional) Run the Go API server manually if not using Vercel.
+
+### 3. Testing
+Run the full test suite (Go backend tests + React component tests):
+```bash
+npm test       # Frontend tests (Vitest)
+go test ./...  # Backend tests
 ```
 
 ---
 
-## 🛠️ Getting Started
+## 📁 Project Structure
 
-### Prerequisites
-
-- **Node.js**: v18+
-- **Go**: v1.24+ (for API development)
-
-### Development
-
-1.  **Clone the repository**:
-    ```bash
-    git clone https://github.com/your-username/rego-dojo.git
-    cd rego-dojo
-    ```
-
-2.  **Install dependencies**:
-    ```bash
-    npm install
-    ```
-
-3.  **Run the development server**:
-    ```bash
-    npm run dev
-    ```
-
-4.  **Backend (Local)**:
-    For local API development, use the [Vercel CLI](https://vercel.com/docs/cli):
-    ```bash
-    vercel dev
-    ```
+```plaintext
+rego-dojo/
+├── api/                  # 🟢 Vercel Serverless Functions (Go)
+│   ├── compile.go        # Handlers for Rego -> WASM compilation
+├── src/
+│   ├── components/       # 🧩 React UI Components
+│   │   ├── editor/       # Policy Code Editor & Input Viewer
+│   │   ├── game/         # Game logic (Console, LevelSelect, WinModal)
+│   │   └── layout/       # Main Dashboard Layout
+│   ├── levels/           # 📚 Level Content (The "database" of levels)
+│   ├── lib/              # ⚙️ Core Libraries
+│   │   ├── opa.ts        # OPA Runtime Wrapper
+│   │   └── types.ts      # TypeScript Definitions
+│   ├── store/            # 📦 State Management (Zustand)
+│   └── test/             # 🧪 Test Setup
+```
 
 ---
 
-## 🎯 Project Roadmap
+## � Future Roadmap
 
-- [x] Initial Scaffolding & Directory Structure
-- [x] Tailwind CSS v4 Integration
-- [ ] OPA-WASM Compilation Pipeline
-- [ ] Core Game Loop (Evaluate -> Win/Loss)
-- [ ] Tutorial Levels (Basics, RBAC, K8s)
-- [ ] Achievement & Persistence System (LocalStorage)
+-   [ ] **Custom Themes**: Let users choose their editor theme.
+-   [ ] **Community Levels**: Allow users to share their own puzzle scenarios.
+-   [ ] **Leaderboards**: Compete for the most efficient policies.
+-   [ ] **More Levels**: Advanced scenarios for Terraform, Envoy, and raw JSON APIs.
 
 ---
 
-## 🛡️ License
-
-Distributed under the MIT License. See `LICENSE` for more information.
-
----
-
-Built with ❤️ for the OPA Community.
+License: MIT
