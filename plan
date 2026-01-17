@@ -1,0 +1,166 @@
+Project Blueprint: Rego Dojo (The Gamified OPA Training Ground)
+Goal: Build "Rego Dojo," a browser-based educational game that teaches developers how to write Open Policy Agent (OPA) policies by solving security puzzles. Unlike the official OPA Playground (which is a blank editor), this is a structured "campaign" where users fix broken policies to unlock the next level.
+
+Vibe: Cyber-punk interface, fast feedback, highly visual. "Duolingo meets HackTheBox."
+
+1. The Core Concept
+Architecture: Serverless. The frontend does the heavy lifting using WebAssembly (WASM). A lightweight Vercel Function (Go) handles compilation.
+
+The Loop:
+
+User selects a Level (e.g., "Level 1: The Bouncer").
+
+App loads the "Scenario" (Description), "Input" (JSON), and "Broken Policy" (Rego).
+
+User edits the Rego code in the browser (Monaco Editor).
+
+Code is sent to the Vercel Function to compile to WASM.
+
+Frontend evaluates the WASM against the Input.
+
+If the output matches the "Win Condition," the user levels up.
+
+2. Tech Stack
+Framework: React 19 (Vite) + TypeScript
+
+Styling: Tailwind CSS (Dark Mode default, Slate/Emerald/Rose color palette)
+
+Editor: @monaco-editor/react (VS Code style editing)
+
+Policy Engine: @open-policy-agent/opa-wasm
+
+Backend (Compiler): Go (running on Vercel Serverless Functions)
+
+State Management: zustand (for tracking current level, user progress, unlocked achievements)
+
+Visuals: framer-motion (for smooth transitions/success animations) + canvas-confetti (for wins).
+
+Icons: lucide-react
+
+3. Requirements & Features
+A. The Game Interface (Single Page)
+
+Sidebar: Level selector. Locked levels are grayed out. Progress bar at top.
+
+Main Stage:
+
+Top Bar: Scenario description (e.g., "Allow admin access, but deny Bob.").
+
+Left Pane: Monaco Editor (Rego Code). Syntax highlighting is a must.
+
+Right Pane: Read-only JSON Viewer (The Input Data).
+
+Bottom Pane: "The Console." Shows real-time evaluation results.
+
+Action Bar: "Evaluate" button (CMD+Enter shortcut). "Hint" button (costs 'points' or just has a cooldown).
+
+B. The Game Logic
+
+Validation: Use LocalStorage to save progress so users don't lose their place on refresh.
+
+Win Conditions: A level is "Solved" if the Policy returns true for the valid input AND false for a hidden "trap" input (to prevent hardcoding).
+
+C. The Content (Levels)
+
+Tutorial: Basic exact match.
+
+RBAC: Role-based logic (if input.user.role == "admin").
+
+ABAC: Attribute-based logic (if input.request.time > 1800).
+
+K8s Gatekeeper: Array iteration (some container in input.request.object.spec.containers).
+
+4. Directory Structure
+Plaintext
+
+rego-dojo/
+├── api/                        # Vercel Serverless Functions
+│   └── compile.go              # Accepts Rego string -> Returns WASM binary
+├── public/
+├── src/
+│   ├── components/
+│   │   ├── editor/
+│   │   │   ├── PolicyEditor.tsx    # Monaco Wrapper
+│   │   │   └── InputViewer.tsx     # JSON syntax highlighter
+│   │   ├── game/
+│   │   │   ├── LevelSelect.tsx     # Sidebar list
+│   │   │   ├── WinModal.tsx        # "Level Complete" popup with confetti
+│   │   │   └── Console.tsx         # Output log
+│   │   └── layout/
+│   │       └── Dashboard.tsx
+│   ├── levels/                 # THE CONTENT CORE
+│   │   ├── index.ts            # Exports level list
+│   │   ├── 01_basics.ts
+│   │   ├── 02_rbac.ts
+│   │   └── 03_k8s_labels.ts
+│   ├── lib/
+│   │   ├── opa.ts              # Wrapper for @open-policy-agent/opa-wasm
+│   │   └── types.ts            # Types for Level, Result, etc.
+│   ├── store/
+│   │   └── gameStore.ts        # Zustand store (currentLevel, completedLevels[])
+│   ├── App.tsx
+│   └── main.tsx
+├── go.mod                      # API dependencies
+├── package.json
+└── vercel.json                 # API route config
+5. Data Schema (The "Level" Object)
+This is critical for the AI to generate the game content correctly.
+
+TypeScript
+
+// src/lib/types.ts
+
+export type Level = {
+  id: string;
+  title: string;
+  description: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  
+  // The starting state for the user
+  initialCode: string; // The "broken" policy
+  inputData: object;   // The JSON input visible to the user
+  
+  // The challenge logic
+  hints: string[];
+  
+  // How we verify success (Hidden from user UI)
+  tests: {
+    name: string;
+    input: object; // Different inputs to test edge cases
+    expectedResult: boolean; // Should this input be Allowed or Denied?
+  }[];
+};
+6. Implementation Steps for AI Assistant
+Scaffold: Initialize Vite + React + TS project. Install zustand, framer-motion, monaco-editor.
+
+API Setup: Create the api/compile.go function first. It must accept a POST body {"rego": "..."} and return binary WASM.
+
+WASM Hook: Create a React hook useRegoCompiler that handles the API call and loading the resulting WASM into the browser's memory.
+
+UI Core: Build the 3-pane layout (Editor, Input, Output).
+
+Game Loop: Implement the "Run Tests" button. It should iterate through the level.tests array, running the WASM policy against each test input. If all match expectedResult, trigger the WinModal.
+
+Content: Generate the first 3 levels (Hello World, Simple RBAC, K8s Label Check).
+
+7. Example "Go" Compiler (api/compile.go)
+Use this logic for the backend:
+
+Go
+
+package handler
+
+import (
+	"net/http"
+	"github.com/open-policy-agent/opa/ast"
+	"github.com/open-policy-agent/opa/compile"
+    // ... other imports
+)
+
+// This function receives Rego string, compiles to WASM, writes to response
+func Handler(w http.ResponseWriter, r *http.Request) {
+    // 1. Parse body to get Rego code
+    // 2. compiler := compile.New().WithTarget("wasm").WithEntrypoints("play/allow")
+    // 3. compiler.Build()
+    // 4. w.Write(compiler.Bytes)
+}
