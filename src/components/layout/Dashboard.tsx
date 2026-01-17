@@ -37,13 +37,77 @@ export default function Dashboard() {
         }
     };
 
-    // Temporary dummy evaluation
-    const handleEvaluate = () => {
-        setLogs(prev => [...prev, {
-            type: 'info',
-            message: 'Evaluation logic pending implementation...',
-            timestamp: new Date().toLocaleTimeString()
-        }]);
+    // Core Game Loop
+    const handleEvaluate = async () => {
+        // Reset logs
+        const newLogs: typeof logs = [];
+        const addLog = (type: 'info' | 'success' | 'error', message: string) => {
+            newLogs.push({ type, message, timestamp: new Date().toLocaleTimeString() });
+            setLogs([...newLogs]);
+        };
+
+        addLog('info', 'Compiling policy...');
+
+        try {
+            // 1. Compile Rego to WASM
+            const response = await fetch('/api/compile', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ rego: code }),
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                addLog('error', `Compilation failed: ${errorText}`);
+                return;
+            }
+
+            const wasmBuffer = await response.arrayBuffer();
+            addLog('success', 'Compilation successful. Loading runtime...');
+
+            // 2. Load WASM into OPA Runtime
+            const { OPARuntime } = await import('../../lib/opa');
+            const opa = new OPARuntime();
+            await opa.load(wasmBuffer);
+
+            addLog('info', 'Running test cases...');
+
+            // 3. Run Tests
+            let allPassed = true;
+            for (const test of currentLevel.tests) {
+                try {
+                    const result = opa.evaluate(test.input);
+                    const passed = result === test.expectedResult;
+
+                    if (passed) {
+                        addLog('success', `[PASS] ${test.name}`);
+                    } else {
+                        addLog('error', `[FAIL] ${test.name} (Expected ${test.expectedResult}, got ${result})`);
+                        allPassed = false;
+                    }
+                } catch (e) {
+                    addLog('error', `[ERROR] ${test.name}: ${e}`);
+                    allPassed = false;
+                }
+            }
+
+            if (allPassed) {
+                addLog('success', '🎉 All tests passed! Level cleared.');
+
+                // Unlock next level if needed
+                if (!completedLevels.includes(currentLevelId)) {
+                    // In a real app we'd update the store here
+                    // setCompletedLevels(prev => [...prev, currentLevelId]);
+                }
+
+                setShowWinModal(true);
+            } else {
+                addLog('info', 'Some tests failed. Check your policy and try again.');
+            }
+
+        } catch (e) {
+            addLog('error', `System error: ${e}`);
+        }
     };
 
     return (
