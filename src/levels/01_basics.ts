@@ -1,4 +1,4 @@
-import { Level } from '../lib/types';
+import type { Level } from '../lib/types';
 
 export const level1: Level = {
     id: '01_basics',

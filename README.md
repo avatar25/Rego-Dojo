@@ -99,6 +99,26 @@ go test ./...  # Backend tests
 
 ---
 
+## 🐳 Running with Docker
+
+The easiest way to run the entire stack (Frontend + Backend) is using Docker Compose.
+
+### 1. Build and Start
+```bash
+docker compose up --build
+```
+
+### 2. Access the App
+-   **Frontend**: [http://localhost:3000](http://localhost:3000)
+-   **Backend API**: [http://localhost:8080](http://localhost:8080)
+
+### 3. Stop
+```bash
+docker compose down
+```
+
+---
+
 ## 📁 Project Structure
 
 ```plaintext

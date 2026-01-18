@@ -1,4 +1,4 @@
-import Editor, { OnMount } from "@monaco-editor/react";
+import Editor, { type OnMount } from "@monaco-editor/react";
 import { useRef } from "react";
 
 interface PolicyEditorProps {

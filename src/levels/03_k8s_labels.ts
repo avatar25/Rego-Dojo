@@ -1,4 +1,4 @@
-import { Level } from '../lib/types';
+import type { Level } from '../lib/types';
 
 export const level3: Level = {
     id: '03_k8s_labels',

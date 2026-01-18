@@ -1,4 +1,4 @@
-import { Level } from "../../lib/types";
+import type { Level } from "../../lib/types";
 import { Lock, CheckCircle } from "lucide-react";
 
 interface LevelSelectProps {

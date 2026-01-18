@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import { LevelSelect } from './LevelSelect';
-import { Level } from '../../lib/types';
+import type { Level } from '../../lib/types';
 import { describe, it, expect, vi } from 'vitest';
 
 const mockLevels: Level[] = [
