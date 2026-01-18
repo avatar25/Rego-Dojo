@@ -2,7 +2,7 @@ package handler
 
 import (
 	"net/http"
-	"rego-dojo/internal/handler"
+	"rego-dojo/pkg/handler"
 )
 
 func Handler(w http.ResponseWriter, r *http.Request) {
