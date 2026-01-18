@@ -66,19 +66,29 @@ npm install
 ```
 
 ### 2. Run the App
-To run both the frontend and the backend API locally, use the Vercel CLI (recommended) or run them separately.
 
-**Using Vercel CLI:**
+You can run the app using **Vercel CLI** (easiest) or **Manually**.
+
+**Option A: Vercel CLI**
+This mimics the production environment perfectly.
 ```bash
 vercel dev
 ```
 
-**Manual Setup:**
-1.  Start the frontend:
+**Option B: Manual Setup**
+If you don't want to use Vercel locally, you can run the backend and frontend separately.
+
+1.  **Start Backend (Go)**:
+    Runs on `http://localhost:8080`.
+    ```bash
+    go run cmd/server/main.go
+    ```
+
+2.  **Start Frontend (React)**:
+    Runs on `http://localhost:3000` (proxies `/api` to backend).
     ```bash
     npm run dev
     ```
-2.  (Optional) Run the Go API server manually if not using Vercel.
 
 ### 3. Testing
 Run the full test suite (Go backend tests + React component tests):
