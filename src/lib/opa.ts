@@ -1,4 +1,4 @@
-import { loadPolicy, LoadedPolicy } from '@open-policy-agent/opa-wasm';
+import { loadPolicy, type LoadedPolicy } from '@open-policy-agent/opa-wasm';
 
 export interface EvaluationResult {
     result: boolean;

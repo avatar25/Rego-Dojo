@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"os"
 
-	handler "rego-dojo/api"
+	handler "rego-dojo/internal/handler"
 )
 
 func main() {
