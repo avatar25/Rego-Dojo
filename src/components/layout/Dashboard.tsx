@@ -16,12 +16,14 @@ export default function Dashboard() {
     const [code, setCode] = useState(currentLevel.initialCode);
     const [logs, setLogs] = useState<{ type: 'info' | 'success' | 'error'; message: string; timestamp: string }[]>([]);
     const [showWinModal, setShowWinModal] = useState(false);
+    const [hintIndex, setHintIndex] = useState(0);
 
     // Sync code when level changes
     useEffect(() => {
         const level = levels.find(l => l.id === currentLevelId);
         if (level) {
             setCode(level.initialCode);
+            setHintIndex(0);
             setLogs([{
                 type: 'info',
                 message: `Loaded ${level.title}`,
@@ -29,6 +31,10 @@ export default function Dashboard() {
             }]);
         }
     }, [currentLevelId]);
+
+    const appendLog = (type: 'info' | 'success' | 'error', message: string) => {
+        setLogs(prev => [...prev, { type, message, timestamp: new Date().toLocaleTimeString() }]);
+    };
 
     const handleLevelSelect = (id: string) => {
         setCurrentLevel(id);
@@ -40,6 +46,25 @@ export default function Dashboard() {
             setCurrentLevel(levels[currentIndex + 1].id);
             setShowWinModal(false);
         }
+    };
+
+    const handleHint = () => {
+        const totalHints = currentLevel.hints.length;
+
+        if (totalHints === 0) {
+            appendLog('info', 'No hints available for this level.');
+            return;
+        }
+
+        if (hintIndex >= totalHints) {
+            appendLog('info', 'No more hints left for this level.');
+            return;
+        }
+
+        const hintNumber = hintIndex + 1;
+        const hint = currentLevel.hints[hintIndex];
+        appendLog('info', `Hint ${hintNumber}/${totalHints}: ${hint}`);
+        setHintIndex(hintNumber);
     };
 
     // Core Game Loop
@@ -176,7 +201,11 @@ export default function Dashboard() {
 
                 {/* Action Bar */}
                 <footer className="h-16 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between px-6 shrink-0 backdrop-blur-md">
-                    <button className="flex items-center gap-2 text-sm text-slate-400 hover:text-emerald-400 transition-colors px-3 py-2 rounded-md hover:bg-slate-800">
+                    <button
+                        onClick={handleHint}
+                        className="flex items-center gap-2 text-sm text-slate-400 hover:text-emerald-400 transition-colors px-3 py-2 rounded-md hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled={currentLevel.hints.length === 0}
+                    >
                         <Lightbulb size={16} />
                         <span>Need a hint?</span>
                     </button>
