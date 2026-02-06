@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { levels } from "../../levels";
+import { levelCategories, levels } from "../../levels";
 import { PolicyEditor } from "../editor/PolicyEditor";
 import { InputViewer } from "../editor/InputViewer";
 import { Console } from "../game/Console";
@@ -153,6 +153,7 @@ export default function Dashboard() {
                 <div className="flex-1 overflow-y-auto">
                     <LevelSelect
                         levels={levels}
+                        categories={levelCategories}
                         currentLevelId={currentLevelId}
                         completedLevelIds={completedLevels}
                         onSelectLevel={handleLevelSelect}

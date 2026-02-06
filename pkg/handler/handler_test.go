@@ -74,3 +74,27 @@ allow { input.user == ` // syntax error
 		t.Errorf("handler should return compile error message, got: %s", body)
 	}
 }
+
+func TestHandler_MethodNotAllowed(t *testing.T) {
+	req := httptest.NewRequest(http.MethodGet, "/api/compile", nil)
+	rr := httptest.NewRecorder()
+
+	Handler(rr, req)
+
+	if status := rr.Code; status != http.StatusMethodNotAllowed {
+		t.Errorf("handler returned wrong status code for invalid method: got %v want %v",
+			status, http.StatusMethodNotAllowed)
+	}
+}
+
+func TestHandler_InvalidJSON(t *testing.T) {
+	req := httptest.NewRequest(http.MethodPost, "/api/compile", strings.NewReader("{"))
+	rr := httptest.NewRecorder()
+
+	Handler(rr, req)
+
+	if status := rr.Code; status != http.StatusBadRequest {
+		t.Errorf("handler returned wrong status code for invalid json: got %v want %v",
+			status, http.StatusBadRequest)
+	}
+}

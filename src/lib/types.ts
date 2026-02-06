@@ -20,3 +20,9 @@ export type Level = {
     expectedResult: boolean; // Should this input be Allowed or Denied?
   }[];
 };
+
+export type LevelCategory = {
+  id: string;
+  title: string;
+  levels: Level[];
+};
