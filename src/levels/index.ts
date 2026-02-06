@@ -6,7 +6,7 @@ import { level5 } from './05_functions';
 import { level6 } from './06_approvals';
 import { level7 } from './07_suspensions';
 import { level8 } from './08_permission_map';
-import type { Level } from '../lib/types';
+import type { Level, LevelCategory } from '../lib/types';
 
 export const levels: Level[] = [
     level1,
@@ -17,4 +17,17 @@ export const levels: Level[] = [
     level6,
     level7,
     level8
+];
+
+export const levelCategories: LevelCategory[] = [
+    {
+        id: 'api-auth',
+        title: 'API auth',
+        levels: [level1, level2, level4, level5, level6, level7, level8]
+    },
+    {
+        id: 'k8',
+        title: 'K8',
+        levels: [level3]
+    }
 ];
