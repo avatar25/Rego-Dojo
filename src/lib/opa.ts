@@ -60,7 +60,7 @@ export class OPARuntime {
     /**
      * Evaluates raw entrypoints if needed (debugging).
      */
-    evaluateRaw(input: object, entrypoint?: string): any {
+    evaluateRaw(input: object, entrypoint?: string): unknown {
         if (!this.policy) return null;
         return this.policy.evaluate(input, entrypoint);
     }

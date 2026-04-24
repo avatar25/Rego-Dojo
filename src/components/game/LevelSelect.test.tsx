@@ -3,48 +3,53 @@ import { LevelSelect } from './LevelSelect';
 import type { Level, LevelCategory } from '../../lib/types';
 import { describe, it, expect, vi } from 'vitest';
 
+const createLevel = (overrides: Pick<Level, 'id' | 'title' | 'difficulty' | 'campaign' | 'xp'>): Level => ({
+    prompt: 'Prompt',
+    starterPolicy: '',
+    visibleTests: [],
+    hiddenTests: [],
+    hints: [],
+    successExplanation: 'Done',
+    ...overrides
+});
+
 const mockLevels: Level[] = [
-    {
+    createLevel({
         id: '1',
         title: 'Level 1',
-        description: 'Desc 1',
         difficulty: 'Beginner',
-        initialCode: '',
-        inputData: {},
-        hints: [],
-        tests: []
-    },
-    {
+        campaign: 'first-five',
+        xp: 50
+    }),
+    createLevel({
         id: '2',
         title: 'Level 2',
-        description: 'Desc 2',
         difficulty: 'Intermediate',
-        initialCode: '',
-        inputData: {},
-        hints: [],
-        tests: []
-    },
-    {
+        campaign: 'first-five',
+        xp: 75
+    }),
+    createLevel({
         id: '3',
         title: 'Level 3',
-        description: 'Desc 3',
         difficulty: 'Advanced',
-        initialCode: '',
-        inputData: {},
-        hints: [],
-        tests: []
-    }
+        campaign: 'kubernetes-basics',
+        xp: 100
+    })
 ];
 
 const mockCategories: LevelCategory[] = [
     {
-        id: 'api-auth',
-        title: 'API auth',
+        id: 'first-five',
+        title: 'First five minutes',
+        description: 'Start here',
+        badgeTitle: 'First Decision',
         levels: [mockLevels[0], mockLevels[1]]
     },
     {
-        id: 'k8',
-        title: 'K8',
+        id: 'kubernetes-basics',
+        title: 'Kubernetes basics',
+        description: 'Admission basics',
+        badgeTitle: 'Kubernetes Basics',
         levels: [mockLevels[2]]
     }
 ];
@@ -57,11 +62,12 @@ describe('LevelSelect', () => {
                 categories={mockCategories}
                 currentLevelId="1"
                 completedLevelIds={[]}
+                bestStreak={0}
                 onSelectLevel={() => { }}
             />
         );
-        expect(screen.getByText('API auth')).toBeInTheDocument();
-        expect(screen.getByText('K8')).toBeInTheDocument();
+        expect(screen.getByText('First five minutes')).toBeInTheDocument();
+        expect(screen.getByText('Kubernetes basics')).toBeInTheDocument();
         expect(screen.getByText('Level 1')).toBeInTheDocument();
         expect(screen.getByText('Level 2')).toBeInTheDocument();
         expect(screen.getByText('Level 3')).toBeInTheDocument();
@@ -75,6 +81,7 @@ describe('LevelSelect', () => {
                 categories={mockCategories}
                 currentLevelId="1"
                 completedLevelIds={[]}
+                bestStreak={0}
                 onSelectLevel={handleSelect}
             />
         );
@@ -91,6 +98,7 @@ describe('LevelSelect', () => {
                 categories={mockCategories}
                 currentLevelId="1"
                 completedLevelIds={[]} // Level 1 not completed, so Level 2 should be locked
+                bestStreak={0}
                 onSelectLevel={handleSelect}
             />
         );
@@ -112,6 +120,7 @@ describe('LevelSelect', () => {
                 categories={mockCategories}
                 currentLevelId="1"
                 completedLevelIds={['1']} // Level 1 completed
+                bestStreak={1}
                 onSelectLevel={handleSelect}
             />
         );
@@ -133,6 +142,7 @@ describe('LevelSelect', () => {
                 categories={mockCategories}
                 currentLevelId="1"
                 completedLevelIds={['1']} // Level 2 not complete, so Level 3 is still locked
+                bestStreak={1}
                 onSelectLevel={handleSelect}
             />
         );

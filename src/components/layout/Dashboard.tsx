@@ -1,39 +1,70 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { levelCategories, levels } from "../../levels";
 import { PolicyEditor } from "../editor/PolicyEditor";
 import { InputViewer } from "../editor/InputViewer";
 import { Console } from "../game/Console";
 import { LevelSelect } from "../game/LevelSelect";
 import { WinModal } from "../game/WinModal";
-import { Play, Lightbulb } from "lucide-react";
+import { ClipboardCheck, Flame, Lightbulb, Play, Share2, ShieldCheck, Star } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
+import {
+    buildShareUrl,
+    formatDecision,
+    getEarnedBadges,
+    getNextLevelId,
+    getTotalXp,
+    readSharedCompletion
+} from "../../lib/progress";
+import type { EvaluationLog, LevelTest } from "../../lib/types";
+
+type TestRun = LevelTest & {
+    suite: 'Visible' | 'Hidden';
+};
+
+const now = () => new Date().toLocaleTimeString();
 
 export default function Dashboard() {
-    const { currentLevelId, completedLevels, setCurrentLevel, completeLevel } = useGameStore();
+    const {
+        currentLevelId,
+        completedLevels,
+        streak,
+        bestStreak,
+        setCurrentLevel,
+        completeLevel
+    } = useGameStore();
 
-    // Local state for the editor content and UI
     const currentLevel = levels.find(l => l.id === currentLevelId) || levels[0];
-    const [code, setCode] = useState(currentLevel.initialCode);
-    const [logs, setLogs] = useState<{ type: 'info' | 'success' | 'error'; message: string; timestamp: string }[]>([]);
+    const [code, setCode] = useState(currentLevel.starterPolicy);
+    const [logs, setLogs] = useState<EvaluationLog[]>([]);
     const [showWinModal, setShowWinModal] = useState(false);
     const [hintIndex, setHintIndex] = useState(0);
+    const [lastXpAward, setLastXpAward] = useState(0);
+    const [shareCopied, setShareCopied] = useState(false);
+    const [sharedCompletion] = useState(() => readSharedCompletion());
 
-    // Sync code when level changes
+    const totalXp = getTotalXp(completedLevels);
+    const badges = getEarnedBadges(completedLevels, bestStreak);
+    const earnedBadges = badges.filter((badge) => badge.earned);
+    const nextBadge = badges.find((badge) => !badge.earned);
+    const progressPercent = Math.round((completedLevels.length / levels.length) * 100);
+    const sampleInput = currentLevel.visibleTests[0]?.input ?? {};
+
     useEffect(() => {
         const level = levels.find(l => l.id === currentLevelId);
         if (level) {
-            setCode(level.initialCode);
+            setCode(level.starterPolicy);
             setHintIndex(0);
+            setShareCopied(false);
             setLogs([{
                 type: 'info',
                 message: `Loaded ${level.title}`,
-                timestamp: new Date().toLocaleTimeString()
+                timestamp: now()
             }]);
         }
     }, [currentLevelId]);
 
-    const appendLog = (type: 'info' | 'success' | 'error', message: string) => {
-        setLogs(prev => [...prev, { type, message, timestamp: new Date().toLocaleTimeString() }]);
+    const appendLog = (type: EvaluationLog['type'], message: string, details?: EvaluationLog['details']) => {
+        setLogs(prev => [...prev, { type, message, details, timestamp: now() }]);
     };
 
     const handleLevelSelect = (id: string) => {
@@ -41,9 +72,9 @@ export default function Dashboard() {
     };
 
     const handleNextLevel = () => {
-        const currentIndex = levels.findIndex(l => l.id === currentLevelId);
-        if (currentIndex < levels.length - 1) {
-            setCurrentLevel(levels[currentIndex + 1].id);
+        const nextLevelId = getNextLevelId(currentLevelId);
+        if (nextLevelId) {
+            setCurrentLevel(nextLevelId);
             setShowWinModal(false);
         }
     };
@@ -67,19 +98,29 @@ export default function Dashboard() {
         setHintIndex(hintNumber);
     };
 
-    // Core Game Loop
+    const handleCopyShare = async () => {
+        const shareUrl = buildShareUrl(completedLevels, bestStreak);
+
+        try {
+            await navigator.clipboard.writeText(shareUrl);
+            setShareCopied(true);
+            appendLog('success', 'Share badge link copied.');
+        } catch {
+            setShareCopied(false);
+            appendLog('info', `Share link: ${shareUrl}`);
+        }
+    };
+
     const handleEvaluate = async () => {
-        // Reset logs
-        const newLogs: typeof logs = [];
-        const addLog = (type: 'info' | 'success' | 'error', message: string) => {
-            newLogs.push({ type, message, timestamp: new Date().toLocaleTimeString() });
+        const newLogs: EvaluationLog[] = [];
+        const addLog = (type: EvaluationLog['type'], message: string, details?: EvaluationLog['details']) => {
+            newLogs.push({ type, message, details, timestamp: now() });
             setLogs([...newLogs]);
         };
 
         addLog('info', 'Compiling policy...');
 
         try {
-            // 1. Compile Rego to WASM
             const response = await fetch('/api/compile', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -93,45 +134,49 @@ export default function Dashboard() {
             }
 
             const wasmBuffer = await response.arrayBuffer();
-            addLog('success', 'Compilation successful. Loading runtime...');
+            addLog('success', 'Compilation successful. Running policy tests...');
 
-            // 2. Load WASM into OPA Runtime
             const { OPARuntime } = await import('../../lib/opa');
             const opa = new OPARuntime();
             await opa.load(wasmBuffer);
 
-            addLog('info', 'Running test cases...');
+            const tests: TestRun[] = [
+                ...currentLevel.visibleTests.map((test) => ({ ...test, suite: 'Visible' as const })),
+                ...currentLevel.hiddenTests.map((test) => ({ ...test, suite: 'Hidden' as const }))
+            ];
 
-            // 3. Run Tests
             let allPassed = true;
-            for (const test of currentLevel.tests) {
-                try {
-                    const result = opa.evaluate(test.input);
-                    const passed = result === test.expectedResult;
+            for (const test of tests) {
+                const result = opa.evaluate(test.input);
+                const passed = result === test.expectedResult;
 
-                    if (passed) {
-                        addLog('success', `[PASS] ${test.name}`);
-                    } else {
-                        addLog('error', `[FAIL] ${test.name} (Expected ${test.expectedResult}, got ${result})`);
-                        allPassed = false;
-                    }
-                } catch (e) {
-                    addLog('error', `[ERROR] ${test.name}: ${e}`);
+                if (passed) {
+                    addLog('success', `[PASS] ${test.suite}: ${test.name}`);
+                } else {
+                    addLog('error', `[FAIL] ${test.suite}: ${test.name}`, {
+                        testName: test.name,
+                        suite: test.suite,
+                        input: test.input,
+                        expected: test.expectedResult,
+                        actual: result,
+                        hint: test.hint
+                    });
                     allPassed = false;
                 }
             }
 
             if (allPassed) {
-                addLog('success', '🎉 All tests passed! Level cleared.');
+                const isNewCompletion = !completedLevels.includes(currentLevelId);
+                setLastXpAward(isNewCompletion ? currentLevel.xp : 0);
 
-                // Unlock next level and save progress
-                if (!completedLevels.includes(currentLevelId)) {
+                if (isNewCompletion) {
                     completeLevel(currentLevelId);
                 }
 
+                addLog('success', `All tests passed. ${isNewCompletion ? `+${currentLevel.xp} XP awarded.` : 'Level already completed.'}`);
                 setShowWinModal(true);
             } else {
-                addLog('info', 'Some tests failed. Check your policy and try again.');
+                addLog('info', 'Fix the failed decision above and run the tests again.');
             }
 
         } catch (e) {
@@ -141,13 +186,32 @@ export default function Dashboard() {
 
     return (
         <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-200">
-            {/* Sidebar */}
-            <aside className="w-72 border-r border-slate-800 bg-slate-900/50 flex flex-col">
+            <aside className="w-80 border-r border-slate-800 bg-slate-900/50 flex flex-col">
                 <div className="p-6">
-                    <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                        REGO DOJO
-                    </h2>
-                    <p className="text-xs text-slate-500 mt-1">Master Policy as Code</p>
+                    <div className="flex items-center justify-between gap-3">
+                        <div>
+                            <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                                REGO DOJO
+                            </h2>
+                            <p className="text-xs text-slate-500 mt-1">Policy training for cluster defenders</p>
+                        </div>
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/10 text-emerald-300">
+                            <ShieldCheck size={20} />
+                        </div>
+                    </div>
+
+                    <div className="mt-5">
+                        <div className="flex items-center justify-between text-xs text-slate-500">
+                            <span>{progressPercent}% complete</span>
+                            <span>{completedLevels.length}/{levels.length} levels</span>
+                        </div>
+                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
+                            <div
+                                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                                style={{ width: `${progressPercent}%` }}
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
@@ -156,51 +220,108 @@ export default function Dashboard() {
                         categories={levelCategories}
                         currentLevelId={currentLevelId}
                         completedLevelIds={completedLevels}
+                        bestStreak={bestStreak}
                         onSelectLevel={handleLevelSelect}
                     />
                 </div>
 
-                <div className="p-4 border-t border-slate-800 bg-slate-900/30">
-                    <div className="text-xs text-slate-500 text-center">
-                        v0.1.0 • OPA WASM
+                <div className="border-t border-slate-800 bg-slate-900/30 p-4">
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                        <div>
+                            <div className="text-xs text-slate-500">XP</div>
+                            <div className="text-sm font-semibold text-emerald-300">{totalXp}</div>
+                        </div>
+                        <div>
+                            <div className="text-xs text-slate-500">Streak</div>
+                            <div className="text-sm font-semibold text-orange-300">{streak}</div>
+                        </div>
+                        <div>
+                            <div className="text-xs text-slate-500">Badges</div>
+                            <div className="text-sm font-semibold text-sky-300">{earnedBadges.length}</div>
+                        </div>
+                    </div>
+                    {nextBadge && (
+                        <div className="mt-3 rounded-md border border-slate-800 bg-slate-950/40 p-2 text-xs text-slate-400">
+                            Next badge: <span className="text-slate-200">{nextBadge.title}</span>
+                        </div>
+                    )}
+                    <div className="mt-3 text-center text-xs text-slate-500">
+                        v0.2.0 - OPA WASM
                     </div>
                 </div>
             </aside>
 
-            {/* Main Content */}
             <main className="flex-1 flex flex-col overflow-hidden relative">
-                <header className="h-16 border-b border-slate-800 bg-slate-900/30 flex items-center justify-between px-6 shrink-0 backdrop-blur-sm z-10">
-                    <div>
-                        <h1 className="text-lg font-semibold text-white">{currentLevel.title}</h1>
-                        <p className="text-sm text-slate-400 truncate max-w-2xl">{currentLevel.description}</p>
+                <header className="min-h-16 border-b border-slate-800 bg-slate-900/30 flex items-start justify-between gap-6 px-6 py-3 shrink-0 backdrop-blur-sm z-10">
+                    <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-3">
+                            <h1 className="text-lg font-semibold text-white">{currentLevel.title}</h1>
+                            <span className="rounded border border-slate-700 px-2 py-0.5 text-xs text-slate-400">{currentLevel.difficulty}</span>
+                            <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-300">{currentLevel.xp} XP</span>
+                        </div>
+                        <p className="mt-1 text-sm leading-relaxed text-slate-400 max-w-3xl break-words">{currentLevel.prompt}</p>
                     </div>
-                    <div className="flex gap-3">
-                        {/* Hints placeholder */}
+                    <div className="flex shrink-0 items-center gap-2">
+                        <div className="hidden items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-400 lg:flex">
+                            <Flame size={16} className="text-orange-300" />
+                            {streak} streak
+                        </div>
+                        <button
+                            onClick={handleCopyShare}
+                            className="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 transition-colors hover:border-emerald-500/40 hover:text-emerald-200"
+                        >
+                            <Share2 size={16} />
+                            {shareCopied ? 'Copied' : 'Share'}
+                        </button>
                     </div>
                 </header>
 
+                {sharedCompletion && (
+                    <div className="border-b border-emerald-500/20 bg-emerald-500/10 px-6 py-2 text-sm text-emerald-100">
+                        Shared completion: {sharedCompletion.badge} - {sharedCompletion.completed} levels - {sharedCompletion.xp} XP
+                    </div>
+                )}
+
                 <div className="flex-1 flex overflow-hidden">
-                    {/* Editor Pane */}
                     <div className="flex-1 flex flex-col min-w-0 border-r border-slate-800 relative group">
                         <PolicyEditor
                             code={code}
                             onChange={(val) => setCode(val || "")}
                         />
-                        {/* Floating Action Button for smaller screens or alternative layout could go here */}
                     </div>
 
-                    {/* Right Panel */}
-                    <div className="w-[400px] flex flex-col bg-slate-900/20 shrink-0">
-                        <div className="flex-1 flex flex-col min-h-0">
-                            <InputViewer data={currentLevel.inputData} />
+                    <div className="w-[430px] flex flex-col bg-slate-900/20 shrink-0">
+                        <div className="h-[42%] min-h-[220px]">
+                            <InputViewer data={sampleInput} title={`${currentLevel.visibleTests[0]?.name ?? 'Visible test'} input`} />
                         </div>
-                        <div className="h-1/3 flex flex-col border-t border-slate-800 min-h-[200px]">
+
+                        <div className="border-t border-slate-800 bg-slate-950/40 p-4">
+                            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                <ClipboardCheck size={14} />
+                                Visible tests
+                            </div>
+                            <div className="space-y-2">
+                                {currentLevel.visibleTests.map((test) => (
+                                    <div key={test.name} className="flex items-center justify-between gap-3 rounded-md border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm">
+                                        <span className="min-w-0 truncate text-slate-300">{test.name}</span>
+                                        <span className={test.expectedResult ? 'text-emerald-300' : 'text-rose-300'}>
+                                            {formatDecision(test.expectedResult)}
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+                                <Star size={13} />
+                                {currentLevel.hiddenTests.length} hidden edge {currentLevel.hiddenTests.length === 1 ? 'case' : 'cases'} run on evaluate
+                            </div>
+                        </div>
+
+                        <div className="flex-1 min-h-[220px] border-t border-slate-800">
                             <Console logs={logs} />
                         </div>
                     </div>
                 </div>
 
-                {/* Action Bar */}
                 <footer className="h-16 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between px-6 shrink-0 backdrop-blur-md">
                     <button
                         onClick={handleHint}
@@ -224,8 +345,13 @@ export default function Dashboard() {
                 <WinModal
                     isOpen={showWinModal}
                     levelTitle={currentLevel.title}
+                    successExplanation={currentLevel.successExplanation}
+                    xpAward={lastXpAward}
+                    streak={streak}
+                    shareCopied={shareCopied}
                     onNextLevel={handleNextLevel}
                     onClose={() => setShowWinModal(false)}
+                    onCopyShare={handleCopyShare}
                     isLastLevel={levels.indexOf(currentLevel) === levels.length - 1}
                 />
             </main>

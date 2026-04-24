@@ -1,17 +1,33 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, ArrowRight, X } from "lucide-react";
+import { ArrowRight, Flame, Share2, Sparkles, Trophy, X } from "lucide-react";
 import confetti from "canvas-confetti";
 import { useEffect } from "react";
 
 interface WinModalProps {
     isOpen: boolean;
     levelTitle: string;
+    successExplanation: string;
+    xpAward: number;
+    streak: number;
+    shareCopied: boolean;
     onNextLevel: () => void;
     onClose: () => void;
+    onCopyShare: () => void;
     isLastLevel?: boolean;
 }
 
-export const WinModal = ({ isOpen, levelTitle, onNextLevel, onClose, isLastLevel = false }: WinModalProps) => {
+export const WinModal = ({
+    isOpen,
+    levelTitle,
+    successExplanation,
+    xpAward,
+    streak,
+    shareCopied,
+    onNextLevel,
+    onClose,
+    onCopyShare,
+    isLastLevel = false
+}: WinModalProps) => {
     useEffect(() => {
         if (isOpen) {
             const duration = 3000;
@@ -68,16 +84,42 @@ export const WinModal = ({ isOpen, levelTitle, onNextLevel, onClose, isLastLevel
                         </div>
 
                         <h2 className="text-2xl font-bold text-white mb-2">Policy Authorized!</h2>
-                        <p className="text-slate-400 mb-8">
+                        <p className="text-slate-400">
                             You've successfully completed <span className="text-emerald-400">{levelTitle}</span>.
                         </p>
+                        <p className="mt-3 text-sm leading-relaxed text-slate-300">{successExplanation}</p>
 
-                        <div className="flex gap-3 justify-center">
+                        <div className="my-6 grid grid-cols-2 gap-3 text-left">
+                            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3">
+                                <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-emerald-300">
+                                    <Sparkles size={14} />
+                                    XP earned
+                                </div>
+                                <div className="mt-1 text-xl font-semibold text-white">+{xpAward}</div>
+                            </div>
+                            <div className="rounded-lg border border-orange-500/20 bg-orange-500/10 p-3">
+                                <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-orange-300">
+                                    <Flame size={14} />
+                                    Streak
+                                </div>
+                                <div className="mt-1 text-xl font-semibold text-white">{streak}</div>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-3 justify-center">
                             <button
                                 onClick={onClose}
                                 className="px-6 py-2.5 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 transition-colors font-medium"
                             >
                                 Stay Here
+                            </button>
+
+                            <button
+                                onClick={onCopyShare}
+                                className="px-6 py-2.5 rounded-lg border border-emerald-500/30 text-emerald-200 hover:bg-emerald-500/10 transition-colors font-medium flex items-center gap-2"
+                            >
+                                <Share2 size={18} />
+                                {shareCopied ? 'Link Copied' : 'Share Badge'}
                             </button>
 
                             {!isLastLevel && (

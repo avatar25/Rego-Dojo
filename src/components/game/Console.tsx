@@ -1,13 +1,9 @@
 import { Terminal, ShieldAlert, CheckCircle2 } from "lucide-react";
-
-interface LogEntry {
-    type: 'info' | 'success' | 'error';
-    message: string;
-    timestamp: string;
-}
+import { formatDecision } from "../../lib/progress";
+import type { EvaluationLog } from "../../lib/types";
 
 interface ConsoleProps {
-    logs: LogEntry[];
+    logs: EvaluationLog[];
 }
 
 export const Console = ({ logs }: ConsoleProps) => {
@@ -18,25 +14,52 @@ export const Console = ({ logs }: ConsoleProps) => {
                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Console Output</span>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+            <div className="flex-1 overflow-y-auto p-4 space-y-3">
                 {logs.length === 0 && (
                     <div className="text-slate-600 italic">Ready to evaluate...</div>
                 )}
 
                 {logs.map((log, i) => (
-                    <div key={i} className="flex gap-3 animate-in fade-in slide-in-from-left-2 duration-200">
-                        <span className="text-slate-600 shrink-0 select-none">[{log.timestamp}]</span>
-                        <div className="flex items-start gap-2">
-                            {log.type === 'error' && <ShieldAlert size={16} className="text-rose-500 mt-0.5 shrink-0" />}
-                            {log.type === 'success' && <CheckCircle2 size={16} className="text-emerald-500 mt-0.5 shrink-0" />}
-                            <span className={
-                                log.type === 'error' ? 'text-rose-400' :
-                                    log.type === 'success' ? 'text-emerald-400' :
-                                        'text-slate-300'
-                            }>
-                                {log.message}
-                            </span>
+                    <div key={i} className="animate-in fade-in slide-in-from-left-2 duration-200">
+                        <div className="flex gap-3">
+                            <span className="text-slate-600 shrink-0 select-none">[{log.timestamp}]</span>
+                            <div className="flex items-start gap-2 min-w-0">
+                                {log.type === 'error' && <ShieldAlert size={16} className="text-rose-500 mt-0.5 shrink-0" />}
+                                {log.type === 'success' && <CheckCircle2 size={16} className="text-emerald-500 mt-0.5 shrink-0" />}
+                                <span className={
+                                    log.type === 'error' ? 'text-rose-400' :
+                                        log.type === 'success' ? 'text-emerald-400' :
+                                            'text-slate-300'
+                                }>
+                                    {log.message}
+                                </span>
+                            </div>
                         </div>
+
+                        {log.details && (
+                            <div className="mt-2 ml-[6.5rem] rounded-md border border-rose-500/25 bg-rose-950/20 p-3 text-xs text-slate-200">
+                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                    <div>
+                                        <div className="text-slate-500 uppercase tracking-wider">Test</div>
+                                        <div className="text-rose-200">{log.details.suite}: {log.details.testName}</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-slate-500 uppercase tracking-wider">Expected</div>
+                                        <div className="text-emerald-300">{formatDecision(log.details.expected)}</div>
+                                    </div>
+                                    <div>
+                                        <div className="text-slate-500 uppercase tracking-wider">Actual</div>
+                                        <div className="text-rose-300">{formatDecision(log.details.actual)}</div>
+                                    </div>
+                                </div>
+                                <pre className="mt-3 max-h-44 overflow-auto rounded bg-slate-950/80 p-3 text-[11px] leading-relaxed text-slate-300">
+                                    {JSON.stringify(log.details.input, null, 2)}
+                                </pre>
+                                <div className="mt-3 text-amber-200">
+                                    Hint: {log.details.hint}
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>

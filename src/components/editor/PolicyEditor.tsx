@@ -8,9 +8,9 @@ interface PolicyEditorProps {
 }
 
 export const PolicyEditor = ({ code, onChange, readOnly = false }: PolicyEditorProps) => {
-    const editorRef = useRef<any>(null);
+    const editorRef = useRef<Parameters<OnMount>[0] | null>(null);
 
-    const handleEditorDidMount: OnMount = (editor, _monaco) => {
+    const handleEditorDidMount: OnMount = (editor) => {
         editorRef.current = editor;
 
         // Define a basic Rego theme if not already present
