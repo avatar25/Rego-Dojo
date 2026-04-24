@@ -10,7 +10,7 @@ Rego Dojo is a browser-based training game for Open Policy Agent policies. It is
 - Structured level authoring with `prompt`, `starterPolicy`, `visibleTests`, `hiddenTests`, `hints`, and `successExplanation`.
 - Exact evaluation feedback for failed tests: failing test name, JSON input, expected decision, actual decision, and a targeted hint.
 - Kubernetes security curriculum: privileged containers, required labels, pinned image tags, resource limits, hostPath restrictions, approved registries, and a combined Pod baseline.
-- Tasteful game layer: XP, streaks, unlocks, badges, campaign map, and shareable completion links.
+- Tasteful progress layer: points, streaks, unlocks, milestones, a learning path, and shareable completion links.
 - OPA WASM evaluation in the browser with a small Go compile API.
 
 ![Failure feedback](docs/screenshots/feedback.svg)

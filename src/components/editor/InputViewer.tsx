@@ -10,19 +10,20 @@ export const InputViewer = ({ data, title = 'Sample Input' }: InputViewerProps) 
     const jsonString = JSON.stringify(data, null, 2);
 
     return (
-        <div className="h-full w-full bg-[#1e1e1e] border-l border-slate-800">
-            <div className="h-8 bg-slate-900 flex items-center px-4 border-b border-slate-800">
-                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{title}</span>
+        <div className="h-full w-full bg-white">
+            <div className="h-9 bg-[#f8fafc] flex items-center px-4 border-b border-slate-200">
+                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{title}</span>
             </div>
             <Editor
-                height="calc(100% - 2rem)"
+                height="calc(100% - 2.25rem)"
                 defaultLanguage="json"
                 value={jsonString}
-                theme="vs-dark"
+                theme="vs"
                 options={{
                     readOnly: true,
                     minimap: { enabled: false },
                     fontSize: 13,
+                    lineHeight: 20,
                     lineNumbers: "off",
                     scrollBeyondLastLine: false,
                     padding: { top: 12, bottom: 12 },

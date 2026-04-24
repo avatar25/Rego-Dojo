@@ -2,7 +2,7 @@ import Dashboard from './components/layout/Dashboard'
 
 function App() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-50 font-sans selection:bg-emerald-500/30">
+    <div className="min-h-screen bg-[#f6f8fb] text-slate-950 font-sans selection:bg-emerald-200">
       <Dashboard />
     </div>
   )

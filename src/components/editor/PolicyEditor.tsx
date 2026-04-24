@@ -25,17 +25,18 @@ export const PolicyEditor = ({ code, onChange, readOnly = false }: PolicyEditorP
     };
 
     return (
-        <div className="h-full w-full bg-[#1e1e1e]">
+        <div className="h-full w-full bg-white">
             <Editor
                 height="100%"
                 defaultLanguage="python" // Fallback since 'rego' isn't standard in Monaco basic
                 value={code}
                 onChange={onChange}
-                theme="vs-dark"
+                theme="vs"
                 options={{
                     readOnly,
                     minimap: { enabled: false },
                     fontSize: 14,
+                    lineHeight: 22,
                     scrollBeyondLastLine: false,
                     padding: { top: 16, bottom: 16 },
                     fontFamily: "'JetBrains Mono', 'Fira Code', Consolas, monospace",
