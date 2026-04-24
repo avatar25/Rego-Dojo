@@ -1,152 +1,130 @@
-# 🏯 Rego Dojo
+# Rego Dojo
 
-> **The Gamified Open Policy Agent Training Ground.**  
-> *Master Policy-as-Code. Level up your security skills.*
+Rego Dojo is a browser-based training game for Open Policy Agent policies. It is built around a short, winnable first session and a practical Kubernetes admission-control curriculum.
 
-![Rego Dojo Dashboard Mockup](https://raw.githubusercontent.com/open-policy-agent/opa/main/docs/media/opa-logo-transparent.png)
+![Rego Dojo dashboard](docs/screenshots/dashboard.svg)
 
-Rego Dojo is an interactive, browser-based game designed to teach **Open Policy Agent (OPA)** policy authoring. Unlike a standard playground, it offers a structured **campaign mode** where you solve security puzzles to unlock new levels.
+## What is inside
 
-![Status](https://img.shields.io/badge/Status-Beta-emerald)
-![Tech](https://img.shields.io/badge/Stack-React%20%7C%20Vite%20%7C%20Go%20%7C%20WASM-blue)
-![License](https://img.shields.io/badge/License-MIT-slate)
+- A tight first path: Hello Policy, Deny by Default, Read the Input, then a real privileged-container admission example.
+- Structured level authoring with `prompt`, `starterPolicy`, `visibleTests`, `hiddenTests`, `hints`, and `successExplanation`.
+- Exact evaluation feedback for failed tests: failing test name, JSON input, expected decision, actual decision, and a targeted hint.
+- Kubernetes security curriculum: privileged containers, required labels, pinned image tags, resource limits, hostPath restrictions, approved registries, and a combined Pod baseline.
+- Tasteful game layer: XP, streaks, unlocks, badges, campaign map, and shareable completion links.
+- OPA WASM evaluation in the browser with a small Go compile API.
 
----
+![Failure feedback](docs/screenshots/feedback.svg)
 
-## 🚀 Features
+## One-command local run
 
-- **🎮 Interactive Campaign**: Progress through levels ranging from basic equality checks to complex K8s admission control logic.
-- **⚡️ Client-Side Evaluation**: Policies are compiled to **WebAssembly (WASM)** and evaluated directly in your browser for instant feedback.
-- **🛡️ Serverless Compiler**: A lightweight Go backend handles the heavy lifting of compiling Rego code to WASM.
-- **💾 Auto-Save**: Your progress (completed levels) is persisted automatically so you can pick up where you left off.
-- **💅 Modern UI**: Built with a sleek, dark-themed interface using **Tailwind CSS**, **Framer Motion**, and **Monaco Editor**.
+Prerequisites:
 
----
+- Node.js 18+
+- Go 1.24+
 
-## 🕹️ How to Play
-
-1.  **Select a Level**: Start with "The Bouncer" (Level 1) to learn the basics.
-2.  **Write Policy**: Use the editor on the left to write Rego code that satisfies the requirements.
-    - *Goal*: Allow valid requests while denying invalid ones.
-3.  **Inspect Input**: Analyze the JSON input on the right to understand the data structure.
-4.  **Evaluate**: Click **evaluate** (or press `Cmd+Enter`) to run your policy against a suite of hidden test cases.
-5.  **Level Up**: Passing all tests unlocks the next challenge!
-
----
-
-## 🛠️ Tech Stack
-
-### Frontend
--   **React 19**: The latest and greatest for UI logic.
--   **Vite**: Blazing fast build tool.
--   **Tailwind CSS v4**: Utility-first styling with a custom dark theme.
--   **Zustand**: Lightweight global state management for tracking game progress.
--   **Monaco Editor**: VS Code-like editing experience in the browser.
-
-### Backend & Core
--   **Go 1.24**: Powers the API.
--   **OPA v1 SDK**: Used to compile Rego strings into executable WASM binaries.
--   **WebAssembly**: The compiled policies run entirely in the browser using `@open-policy-agent/opa-wasm`.
-
----
-
-## 👩‍💻 Local Development
-
-Clone the project and get started in minutes.
-
-### Prerequisites
--   Node.js v18+
--   Go 1.24+ (for the compilation API)
-
-### 1. Installation
 ```bash
-git clone https://github.com/your-username/rego-dojo.git
-cd rego-dojo
 npm install
+npm run local
 ```
 
-### 2. Run the App
+Open [http://localhost:3000](http://localhost:3000). The local command starts both:
 
-You can run the app using **Vercel CLI** (easiest) or **Manually**.
+- Frontend: Vite on `http://localhost:3000`
+- Backend: Go compile API on `http://localhost:8080`
 
-**Option A: Vercel CLI**
-This mimics the production environment perfectly.
+## Other run paths
+
+Vercel-style local development:
+
 ```bash
 vercel dev
 ```
 
-**Option B: Manual Setup**
-If you don't want to use Vercel locally, you can run the backend and frontend separately.
+Docker:
 
-1.  **Start Backend (Go)**:
-    Runs on `http://localhost:8080`.
-    ```bash
-    go run cmd/server/main.go
-    ```
-
-2.  **Start Frontend (React)**:
-    Runs on `http://localhost:3000` (proxies `/api` to backend).
-    ```bash
-    npm run dev
-    ```
-
-### 3. Testing
-Run the full test suite (Go backend tests + React component tests):
-```bash
-npm test       # Frontend tests (Vitest)
-go test ./...  # Backend tests
-```
-
----
-
-## 🐳 Running with Docker
-
-The easiest way to run the entire stack (Frontend + Backend) is using Docker Compose.
-
-### 1. Build and Start
 ```bash
 docker compose up --build
 ```
 
-### 2. Access the App
--   **Frontend**: [http://localhost:3000](http://localhost:3000)
--   **Backend API**: [http://localhost:8080](http://localhost:8080)
+Then open [http://localhost:3000](http://localhost:3000).
 
-### 3. Stop
+## Tests and build
+
 ```bash
-docker compose down
+npm test
+go test ./...
+npm run build
 ```
 
----
+## Level authoring
 
-## 📁 Project Structure
+Levels live in [`src/levels`](src/levels). Each level is a typed object:
+
+```ts
+import type { Level } from '../lib/types';
+
+export const level: Level = {
+  id: 'example_id',
+  title: 'Example title',
+  prompt: 'The mission the learner is solving.',
+  difficulty: 'Beginner',
+  campaign: 'kubernetes-basics',
+  xp: 125,
+  starterPolicy: `package play
+
+default allow = false`,
+  visibleTests: [
+    {
+      name: 'Allowed case',
+      input: { request: { action: 'deploy' } },
+      expectedResult: true,
+      hint: 'Point the learner at the field they missed.'
+    }
+  ],
+  hiddenTests: [
+    {
+      name: 'Edge case',
+      input: { request: { action: 'delete' } },
+      expectedResult: false,
+      hint: 'Explain the smallest next move.'
+    }
+  ],
+  hints: ['General hint shown from the footer button.'],
+  successExplanation: 'A short explanation of what the learner just mastered.'
+};
+```
+
+Visible tests are shown before evaluation. Hidden tests are not shown up front, but any hidden failure reveals the exact input and hint so the learner can recover without guessing.
+
+## Deployment
+
+Vercel:
+
+```bash
+npm run build
+vercel deploy
+```
+
+Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+The frontend container serves the built app through Nginx and proxies `/api` to the backend container.
+
+## Project structure
 
 ```plaintext
 rego-dojo/
-├── api/                  # 🟢 Vercel Serverless Functions (Go)
-│   ├── compile.go        # Handlers for Rego -> WASM compilation
-├── src/
-│   ├── components/       # 🧩 React UI Components
-│   │   ├── editor/       # Policy Code Editor & Input Viewer
-│   │   ├── game/         # Game logic (Console, LevelSelect, WinModal)
-│   │   └── layout/       # Main Dashboard Layout
-│   ├── levels/           # 📚 Level Content (The "database" of levels)
-│   ├── lib/              # ⚙️ Core Libraries
-│   │   ├── opa.ts        # OPA Runtime Wrapper
-│   │   └── types.ts      # TypeScript Definitions
-│   ├── store/            # 📦 State Management (Zustand)
-│   └── test/             # 🧪 Test Setup
+├── api/                  # Vercel Go function for Rego -> WASM compilation
+├── cmd/server/           # Local Go API server
+├── docs/screenshots/     # README screenshots
+├── scripts/local-dev.mjs # One-command local stack
+├── src/components/       # React UI
+├── src/levels/           # Authored curriculum
+├── src/lib/              # OPA runtime, types, progress helpers
+└── src/store/            # Zustand game progress
 ```
-
----
-
-## � Future Roadmap
-
--   [ ] **Custom Themes**: Let users choose their editor theme.
--   [ ] **Community Levels**: Allow users to share their own puzzle scenarios.
--   [ ] **Leaderboards**: Compete for the most efficient policies.
--   [ ] **More Levels**: Advanced scenarios for Terraform, Envoy, and raw JSON APIs.
-
----
 
 License: MIT
