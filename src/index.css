@@ -39,8 +39,8 @@
 }
 
 :root {
-  background-color: var(--color-slate-950);
-  color: var(--color-slate-50);
+  background-color: #f6f8fb;
+  color: var(--color-slate-950);
 }
 
 body {

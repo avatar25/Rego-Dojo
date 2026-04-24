@@ -1,24 +1,24 @@
 <svg width="1280" height="760" viewBox="0 0 1280 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">Rego Dojo failure feedback screenshot</title>
-  <desc id="desc">Evaluation console showing a failed visible test with input, expected decision, actual decision, and a hint.</desc>
-  <rect width="1280" height="760" fill="#020617"/>
-  <rect x="96" y="72" width="1088" height="616" rx="14" fill="#0f172a" stroke="#1e293b"/>
-  <text x="140" y="128" fill="#f8fafc" font-family="Arial, sans-serif" font-size="28" font-weight="700">Polished failure feedback</text>
-  <text x="140" y="160" fill="#94a3b8" font-family="Arial, sans-serif" font-size="16">The learner sees the failing test, input, expected result, actual result, and a small hint.</text>
-  <rect x="140" y="206" width="1000" height="420" rx="10" fill="#0d1117" stroke="#1e293b"/>
-  <rect x="140" y="206" width="1000" height="52" rx="10" fill="#111827"/>
-  <text x="172" y="239" fill="#94a3b8" font-family="Arial, sans-serif" font-size="14" font-weight="700">CONSOLE OUTPUT</text>
-  <text x="172" y="302" fill="#34d399" font-family="Menlo, monospace" font-size="16">[10:42:11] Compilation successful. Running policy tests...</text>
-  <text x="172" y="342" fill="#fb7185" font-family="Menlo, monospace" font-size="16">[10:42:11] [FAIL] Visible: Privileged Pod is denied</text>
-  <rect x="250" y="366" width="820" height="220" rx="8" fill="#4c0519" fill-opacity="0.32" stroke="#fb7185" stroke-opacity="0.35"/>
+  <desc id="desc">Light evaluation feedback panel showing a failed test with input, expected decision, actual decision, and a hint.</desc>
+  <rect width="1280" height="760" fill="#f6f8fb"/>
+  <rect x="96" y="72" width="1088" height="616" rx="16" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="140" y="128" fill="#0f172a" font-family="Arial, sans-serif" font-size="28" font-weight="700">Clear policy feedback</text>
+  <text x="140" y="160" fill="#64748b" font-family="Arial, sans-serif" font-size="16">The learner sees the failing test, input, expected result, actual result, and a small hint.</text>
+  <rect x="140" y="206" width="1000" height="420" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="140" y="206" width="1000" height="52" rx="12" fill="#f8fafc"/>
+  <text x="172" y="239" fill="#64748b" font-family="Arial, sans-serif" font-size="14" font-weight="700">FEEDBACK</text>
+  <text x="172" y="302" fill="#047857" font-family="Menlo, monospace" font-size="16">[10:42:11] Compilation successful. Running policy tests...</text>
+  <text x="172" y="342" fill="#be123c" font-family="Menlo, monospace" font-size="16">[10:42:11] [FAIL] Visible: Privileged Pod is denied</text>
+  <rect x="250" y="366" width="820" height="220" rx="8" fill="#fff1f2" stroke="#fecdd3"/>
   <text x="282" y="404" fill="#64748b" font-family="Arial, sans-serif" font-size="12">TEST</text>
-  <text x="282" y="428" fill="#fecdd3" font-family="Arial, sans-serif" font-size="15">Visible: Privileged Pod is denied</text>
+  <text x="282" y="428" fill="#be123c" font-family="Arial, sans-serif" font-size="15">Visible: Privileged Pod is denied</text>
   <text x="550" y="404" fill="#64748b" font-family="Arial, sans-serif" font-size="12">EXPECTED</text>
-  <text x="550" y="428" fill="#6ee7b7" font-family="Arial, sans-serif" font-size="15">deny</text>
+  <text x="550" y="428" fill="#047857" font-family="Arial, sans-serif" font-size="15">deny</text>
   <text x="738" y="404" fill="#64748b" font-family="Arial, sans-serif" font-size="12">ACTUAL</text>
-  <text x="738" y="428" fill="#fda4af" font-family="Arial, sans-serif" font-size="15">allow</text>
-  <rect x="282" y="454" width="756" height="78" rx="6" fill="#020617" stroke="#1e293b"/>
-  <text x="306" y="484" fill="#cbd5e1" font-family="Menlo, monospace" font-size="14">{"request":{"object":{"spec":{"containers":[{"securityContext":{"privileged":true}}]}}}}</text>
-  <text x="282" y="562" fill="#fde68a" font-family="Arial, sans-serif" font-size="15">Hint: Build a helper that detects privileged == true, then allow when it is not true.</text>
-  <text x="172" y="616" fill="#94a3b8" font-family="Menlo, monospace" font-size="16">[10:42:11] Fix the failed decision above and run the tests again.</text>
+  <text x="738" y="428" fill="#be123c" font-family="Arial, sans-serif" font-size="15">allow</text>
+  <rect x="282" y="454" width="756" height="78" rx="6" fill="#ffffff" stroke="#fecdd3"/>
+  <text x="306" y="484" fill="#334155" font-family="Menlo, monospace" font-size="14">{"request":{"object":{"spec":{"containers":[{"securityContext":{"privileged":true}}]}}}}</text>
+  <text x="282" y="562" fill="#334155" font-family="Arial, sans-serif" font-size="15">Hint: Build a helper that detects privileged == true, then allow when it is not true.</text>
+  <text x="172" y="616" fill="#64748b" font-family="Menlo, monospace" font-size="16">[10:42:11] Fix the failed decision above and run the tests again.</text>
 </svg>

@@ -1,52 +1,53 @@
 <svg width="1280" height="760" viewBox="0 0 1280 760" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
   <title id="title">Rego Dojo dashboard screenshot</title>
-  <desc id="desc">Dark training dashboard with campaign map, Rego editor, JSON input, visible tests, and console feedback.</desc>
-  <rect width="1280" height="760" fill="#020617"/>
-  <rect x="24" y="24" width="300" height="712" rx="10" fill="#0f172a" stroke="#1e293b"/>
-  <text x="50" y="66" fill="#34d399" font-family="Arial, sans-serif" font-size="24" font-weight="700">REGO DOJO</text>
-  <text x="50" y="91" fill="#64748b" font-family="Arial, sans-serif" font-size="13">Policy training for cluster defenders</text>
-  <rect x="50" y="122" width="248" height="8" rx="4" fill="#1e293b"/>
-  <rect x="50" y="122" width="92" height="8" rx="4" fill="#10b981"/>
-  <rect x="50" y="160" width="248" height="80" rx="8" fill="#020617" stroke="#1e293b"/>
-  <text x="68" y="190" fill="#94a3b8" font-family="Arial, sans-serif" font-size="12">Dojo rank</text>
-  <text x="226" y="190" fill="#6ee7b7" font-family="Arial, sans-serif" font-size="14" font-weight="700">225 XP</text>
-  <rect x="68" y="206" width="92" height="22" rx="5" fill="#064e3b" stroke="#10b981"/>
-  <text x="78" y="221" fill="#d1fae5" font-family="Arial, sans-serif" font-size="11">First Decision</text>
-  <rect x="50" y="282" width="248" height="58" rx="8" fill="#064e3b" stroke="#10b981"/>
-  <circle cx="76" cy="311" r="14" fill="#10b981"/>
-  <text x="104" y="305" fill="#ecfdf5" font-family="Arial, sans-serif" font-size="15" font-weight="700">Hello Policy</text>
-  <text x="104" y="324" fill="#6ee7b7" font-family="Arial, sans-serif" font-size="11">Beginner - 50 XP</text>
-  <rect x="50" y="352" width="248" height="58" rx="8" fill="#111827" stroke="#334155"/>
-  <circle cx="76" cy="381" r="14" fill="#020617" stroke="#334155"/>
-  <text x="104" y="375" fill="#cbd5e1" font-family="Arial, sans-serif" font-size="15" font-weight="700">Deny by Default</text>
-  <text x="104" y="394" fill="#64748b" font-family="Arial, sans-serif" font-size="11">Beginner - 75 XP</text>
-  <rect x="348" y="24" width="908" height="88" rx="10" fill="#0f172a" stroke="#1e293b"/>
-  <text x="376" y="60" fill="#f8fafc" font-family="Arial, sans-serif" font-size="22" font-weight="700">Read the Input</text>
-  <text x="376" y="88" fill="#94a3b8" font-family="Arial, sans-serif" font-size="14">Allow production deploys only when method, path, and deployer group match.</text>
-  <rect x="348" y="132" width="562" height="516" rx="10" fill="#111827" stroke="#1e293b"/>
+  <desc id="desc">Light Rego Dojo training workspace with learning path, editor, JSON input, visible tests, and feedback.</desc>
+  <rect width="1280" height="760" fill="#f6f8fb"/>
+  <rect x="24" y="24" width="300" height="712" rx="12" fill="#f8fafc" stroke="#e2e8f0"/>
+  <text x="50" y="66" fill="#0f172a" font-family="Arial, sans-serif" font-size="24" font-weight="700">REGO DOJO</text>
+  <text x="50" y="91" fill="#64748b" font-family="Arial, sans-serif" font-size="13">Policy training for cloud teams</text>
+  <rect x="50" y="122" width="248" height="8" rx="4" fill="#e2e8f0"/>
+  <rect x="50" y="122" width="92" height="8" rx="4" fill="#059669"/>
+  <rect x="50" y="160" width="248" height="80" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="68" y="190" fill="#64748b" font-family="Arial, sans-serif" font-size="12">Progress</text>
+  <text x="222" y="190" fill="#0f172a" font-family="Arial, sans-serif" font-size="14" font-weight="700">225 pts</text>
+  <rect x="68" y="206" width="104" height="22" rx="5" fill="#ecfdf5" stroke="#a7f3d0"/>
+  <text x="78" y="221" fill="#047857" font-family="Arial, sans-serif" font-size="11">First Decision</text>
+  <text x="50" y="274" fill="#64748b" font-family="Arial, sans-serif" font-size="12" font-weight="700">LEARNING PATH</text>
+  <rect x="50" y="296" width="248" height="58" rx="8" fill="#ecfdf5" stroke="#6ee7b7"/>
+  <circle cx="76" cy="325" r="14" fill="#059669"/>
+  <text x="104" y="319" fill="#0f172a" font-family="Arial, sans-serif" font-size="15" font-weight="700">Hello Policy</text>
+  <text x="104" y="338" fill="#64748b" font-family="Arial, sans-serif" font-size="11">Beginner - 50 pts</text>
+  <rect x="50" y="366" width="248" height="58" rx="8" fill="#ffffff" stroke="#e2e8f0"/>
+  <circle cx="76" cy="395" r="14" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="104" y="389" fill="#334155" font-family="Arial, sans-serif" font-size="15" font-weight="700">Deny by Default</text>
+  <text x="104" y="408" fill="#64748b" font-family="Arial, sans-serif" font-size="11">Beginner - 75 pts</text>
+  <rect x="348" y="24" width="908" height="88" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="376" y="60" fill="#0f172a" font-family="Arial, sans-serif" font-size="22" font-weight="700">Read the Input</text>
+  <text x="376" y="88" fill="#64748b" font-family="Arial, sans-serif" font-size="14">Allow production deploys only when method, path, and deployer group match.</text>
+  <rect x="348" y="132" width="562" height="516" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
   <text x="376" y="170" fill="#64748b" font-family="Arial, sans-serif" font-size="13">policy.rego</text>
-  <text x="376" y="216" fill="#94a3b8" font-family="Menlo, monospace" font-size="18">package play</text>
-  <text x="376" y="256" fill="#94a3b8" font-family="Menlo, monospace" font-size="18">default allow = false</text>
-  <text x="376" y="316" fill="#34d399" font-family="Menlo, monospace" font-size="18">allow {</text>
-  <text x="410" y="354" fill="#e2e8f0" font-family="Menlo, monospace" font-size="18">input.request.method == "POST"</text>
-  <text x="410" y="392" fill="#e2e8f0" font-family="Menlo, monospace" font-size="18">input.request.path == "/deploy"</text>
-  <text x="410" y="430" fill="#e2e8f0" font-family="Menlo, monospace" font-size="18">input.actor.groups[_] == "deployers"</text>
-  <text x="376" y="468" fill="#34d399" font-family="Menlo, monospace" font-size="18">}</text>
-  <rect x="930" y="132" width="326" height="238" rx="10" fill="#111827" stroke="#1e293b"/>
-  <text x="956" y="170" fill="#94a3b8" font-family="Arial, sans-serif" font-size="13">Deploy bot can deploy input</text>
-  <text x="956" y="214" fill="#cbd5e1" font-family="Menlo, monospace" font-size="15">{</text>
-  <text x="976" y="242" fill="#cbd5e1" font-family="Menlo, monospace" font-size="15">"request": {"method": "POST"},</text>
-  <text x="976" y="270" fill="#cbd5e1" font-family="Menlo, monospace" font-size="15">"actor": {"groups": [...]}</text>
-  <text x="956" y="298" fill="#cbd5e1" font-family="Menlo, monospace" font-size="15">}</text>
-  <rect x="930" y="390" width="326" height="108" rx="10" fill="#020617" stroke="#1e293b"/>
+  <text x="376" y="216" fill="#334155" font-family="Menlo, monospace" font-size="18">package play</text>
+  <text x="376" y="256" fill="#334155" font-family="Menlo, monospace" font-size="18">default allow = false</text>
+  <text x="376" y="316" fill="#047857" font-family="Menlo, monospace" font-size="18">allow {</text>
+  <text x="410" y="354" fill="#0f172a" font-family="Menlo, monospace" font-size="18">input.request.method == "POST"</text>
+  <text x="410" y="392" fill="#0f172a" font-family="Menlo, monospace" font-size="18">input.request.path == "/deploy"</text>
+  <text x="410" y="430" fill="#0f172a" font-family="Menlo, monospace" font-size="18">input.actor.groups[_] == "deployers"</text>
+  <text x="376" y="468" fill="#047857" font-family="Menlo, monospace" font-size="18">}</text>
+  <rect x="930" y="132" width="326" height="238" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="956" y="170" fill="#64748b" font-family="Arial, sans-serif" font-size="13">Deploy bot can deploy input</text>
+  <text x="956" y="214" fill="#334155" font-family="Menlo, monospace" font-size="15">{</text>
+  <text x="976" y="242" fill="#334155" font-family="Menlo, monospace" font-size="15">"request": {"method": "POST"},</text>
+  <text x="976" y="270" fill="#334155" font-family="Menlo, monospace" font-size="15">"actor": {"groups": [...]}</text>
+  <text x="956" y="298" fill="#334155" font-family="Menlo, monospace" font-size="15">}</text>
+  <rect x="930" y="390" width="326" height="108" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
   <text x="956" y="426" fill="#64748b" font-family="Arial, sans-serif" font-size="12">VISIBLE TESTS</text>
-  <text x="956" y="460" fill="#e2e8f0" font-family="Arial, sans-serif" font-size="14">Deploy bot can deploy</text>
-  <text x="1178" y="460" fill="#34d399" font-family="Arial, sans-serif" font-size="14">allow</text>
-  <rect x="930" y="518" width="326" height="130" rx="10" fill="#0d1117" stroke="#1e293b"/>
-  <text x="956" y="555" fill="#64748b" font-family="Arial, sans-serif" font-size="12">CONSOLE OUTPUT</text>
-  <text x="956" y="590" fill="#34d399" font-family="Menlo, monospace" font-size="14">[PASS] Visible: Deploy bot can deploy</text>
-  <text x="956" y="620" fill="#34d399" font-family="Menlo, monospace" font-size="14">[PASS] Hidden: Wrong path is denied</text>
-  <rect x="348" y="670" width="908" height="66" rx="10" fill="#0f172a" stroke="#1e293b"/>
-  <rect x="1064" y="684" width="164" height="38" rx="8" fill="#059669"/>
+  <text x="956" y="460" fill="#334155" font-family="Arial, sans-serif" font-size="14">Deploy bot can deploy</text>
+  <text x="1178" y="460" fill="#047857" font-family="Arial, sans-serif" font-size="14">allow</text>
+  <rect x="930" y="518" width="326" height="130" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
+  <text x="956" y="555" fill="#64748b" font-family="Arial, sans-serif" font-size="12">FEEDBACK</text>
+  <text x="956" y="590" fill="#047857" font-family="Menlo, monospace" font-size="14">[PASS] Visible: Deploy bot can deploy</text>
+  <text x="956" y="620" fill="#047857" font-family="Menlo, monospace" font-size="14">[PASS] Hidden: Wrong path is denied</text>
+  <rect x="348" y="670" width="908" height="66" rx="12" fill="#ffffff" stroke="#e2e8f0"/>
+  <rect x="1064" y="684" width="164" height="38" rx="8" fill="#047857"/>
   <text x="1090" y="708" fill="#ffffff" font-family="Arial, sans-serif" font-size="14" font-weight="700">Evaluate Policy</text>
 </svg>

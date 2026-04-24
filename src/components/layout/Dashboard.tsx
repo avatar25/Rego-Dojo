@@ -5,7 +5,7 @@ import { InputViewer } from "../editor/InputViewer";
 import { Console } from "../game/Console";
 import { LevelSelect } from "../game/LevelSelect";
 import { WinModal } from "../game/WinModal";
-import { ClipboardCheck, Flame, Lightbulb, Play, Share2, ShieldCheck, Star } from "lucide-react";
+import { BookOpen, ClipboardCheck, Lightbulb, Play, Share2, ShieldCheck } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import {
     buildShareUrl,
@@ -104,7 +104,7 @@ export default function Dashboard() {
         try {
             await navigator.clipboard.writeText(shareUrl);
             setShareCopied(true);
-            appendLog('success', 'Share badge link copied.');
+            appendLog('success', 'Share link copied.');
         } catch {
             setShareCopied(false);
             appendLog('info', `Share link: ${shareUrl}`);
@@ -173,7 +173,7 @@ export default function Dashboard() {
                     completeLevel(currentLevelId);
                 }
 
-                addLog('success', `All tests passed. ${isNewCompletion ? `+${currentLevel.xp} XP awarded.` : 'Level already completed.'}`);
+                addLog('success', `All tests passed. ${isNewCompletion ? `+${currentLevel.xp} points awarded.` : 'Level already completed.'}`);
                 setShowWinModal(true);
             } else {
                 addLog('info', 'Fix the failed decision above and run the tests again.');
@@ -185,18 +185,18 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-200">
-            <aside className="w-80 border-r border-slate-800 bg-slate-900/50 flex flex-col">
+        <div className="flex h-screen overflow-hidden bg-[#f6f8fb] text-slate-900">
+            <aside className="w-80 border-r border-slate-200 bg-[#f8fafc] flex flex-col">
                 <div className="p-6">
                     <div className="flex items-center justify-between gap-3">
                         <div>
-                            <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+                            <h2 className="text-xl font-bold tracking-tight text-slate-950">
                                 REGO DOJO
                             </h2>
-                            <p className="text-xs text-slate-500 mt-1">Policy training for cluster defenders</p>
+                            <p className="text-xs text-slate-500 mt-1">Policy training for cloud teams</p>
                         </div>
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-500/25 bg-emerald-500/10 text-emerald-300">
-                            <ShieldCheck size={20} />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-emerald-200 bg-white text-emerald-700 shadow-sm shadow-slate-200/70">
+                            <BookOpen size={20} />
                         </div>
                     </div>
 
@@ -205,9 +205,9 @@ export default function Dashboard() {
                             <span>{progressPercent}% complete</span>
                             <span>{completedLevels.length}/{levels.length} levels</span>
                         </div>
-                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
+                        <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-200">
                             <div
-                                className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+                                className="h-full rounded-full bg-emerald-600 transition-all duration-500"
                                 style={{ width: `${progressPercent}%` }}
                             />
                         </div>
@@ -225,24 +225,24 @@ export default function Dashboard() {
                     />
                 </div>
 
-                <div className="border-t border-slate-800 bg-slate-900/30 p-4">
+                <div className="border-t border-slate-200 bg-white p-4">
                     <div className="grid grid-cols-3 gap-2 text-center">
                         <div>
-                            <div className="text-xs text-slate-500">XP</div>
-                            <div className="text-sm font-semibold text-emerald-300">{totalXp}</div>
+                            <div className="text-xs text-slate-500">Points</div>
+                            <div className="text-sm font-semibold text-slate-950">{totalXp}</div>
                         </div>
                         <div>
-                            <div className="text-xs text-slate-500">Streak</div>
-                            <div className="text-sm font-semibold text-orange-300">{streak}</div>
+                            <div className="text-xs text-slate-500">Run</div>
+                            <div className="text-sm font-semibold text-slate-950">{streak}</div>
                         </div>
                         <div>
-                            <div className="text-xs text-slate-500">Badges</div>
-                            <div className="text-sm font-semibold text-sky-300">{earnedBadges.length}</div>
+                            <div className="text-xs text-slate-500">Milestones</div>
+                            <div className="text-sm font-semibold text-slate-950">{earnedBadges.length}</div>
                         </div>
                     </div>
                     {nextBadge && (
-                        <div className="mt-3 rounded-md border border-slate-800 bg-slate-950/40 p-2 text-xs text-slate-400">
-                            Next badge: <span className="text-slate-200">{nextBadge.title}</span>
+                        <div className="mt-3 rounded-md border border-slate-200 bg-[#f8fafc] p-2 text-xs text-slate-500">
+                            Next milestone: <span className="text-slate-800">{nextBadge.title}</span>
                         </div>
                     )}
                     <div className="mt-3 text-center text-xs text-slate-500">
@@ -252,23 +252,23 @@ export default function Dashboard() {
             </aside>
 
             <main className="flex-1 flex flex-col overflow-hidden relative">
-                <header className="min-h-16 border-b border-slate-800 bg-slate-900/30 flex items-start justify-between gap-6 px-6 py-3 shrink-0 backdrop-blur-sm z-10">
+                <header className="min-h-16 border-b border-slate-200 bg-white flex items-start justify-between gap-6 px-6 py-3 shrink-0 z-10">
                     <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-3">
-                            <h1 className="text-lg font-semibold text-white">{currentLevel.title}</h1>
-                            <span className="rounded border border-slate-700 px-2 py-0.5 text-xs text-slate-400">{currentLevel.difficulty}</span>
-                            <span className="rounded border border-emerald-500/25 bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-300">{currentLevel.xp} XP</span>
+                            <h1 className="text-lg font-semibold text-slate-950">{currentLevel.title}</h1>
+                            <span className="rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600">{currentLevel.difficulty}</span>
+                            <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs text-emerald-800">{currentLevel.xp} pts</span>
                         </div>
-                        <p className="mt-1 text-sm leading-relaxed text-slate-400 max-w-3xl break-words">{currentLevel.prompt}</p>
+                        <p className="mt-1 text-sm leading-relaxed text-slate-600 max-w-3xl break-words">{currentLevel.prompt}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                        <div className="hidden items-center gap-2 rounded-lg border border-slate-800 bg-slate-950/40 px-3 py-2 text-sm text-slate-400 lg:flex">
-                            <Flame size={16} className="text-orange-300" />
-                            {streak} streak
+                        <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-[#f8fafc] px-3 py-2 text-sm text-slate-600 lg:flex">
+                            <ShieldCheck size={16} className="text-emerald-700" />
+                            {streak} run streak
                         </div>
                         <button
                             onClick={handleCopyShare}
-                            className="flex items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-300 transition-colors hover:border-emerald-500/40 hover:text-emerald-200"
+                            className="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-600 transition-colors hover:border-emerald-300 hover:text-emerald-800"
                         >
                             <Share2 size={16} />
                             {shareCopied ? 'Copied' : 'Share'}
@@ -277,55 +277,55 @@ export default function Dashboard() {
                 </header>
 
                 {sharedCompletion && (
-                    <div className="border-b border-emerald-500/20 bg-emerald-500/10 px-6 py-2 text-sm text-emerald-100">
-                        Shared completion: {sharedCompletion.badge} - {sharedCompletion.completed} levels - {sharedCompletion.xp} XP
+                    <div className="border-b border-emerald-200 bg-emerald-50 px-6 py-2 text-sm text-emerald-900">
+                        Shared completion: {sharedCompletion.badge} - {sharedCompletion.completed} levels - {sharedCompletion.xp} points
                     </div>
                 )}
 
                 <div className="flex-1 flex overflow-hidden">
-                    <div className="flex-1 flex flex-col min-w-0 border-r border-slate-800 relative group">
+                    <div className="flex-1 flex flex-col min-w-0 border-r border-slate-200 bg-white relative group">
                         <PolicyEditor
                             code={code}
                             onChange={(val) => setCode(val || "")}
                         />
                     </div>
 
-                    <div className="w-[430px] flex flex-col bg-slate-900/20 shrink-0">
-                        <div className="h-[42%] min-h-[220px]">
+                    <div className="w-[430px] flex flex-col bg-[#f8fafc] shrink-0">
+                        <div className="h-[42%] min-h-[220px] border-b border-slate-200">
                             <InputViewer data={sampleInput} title={`${currentLevel.visibleTests[0]?.name ?? 'Visible test'} input`} />
                         </div>
 
-                        <div className="border-t border-slate-800 bg-slate-950/40 p-4">
+                        <div className="border-b border-slate-200 bg-white p-4">
                             <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
                                 <ClipboardCheck size={14} />
                                 Visible tests
                             </div>
                             <div className="space-y-2">
                                 {currentLevel.visibleTests.map((test) => (
-                                    <div key={test.name} className="flex items-center justify-between gap-3 rounded-md border border-slate-800 bg-slate-900/50 px-3 py-2 text-sm">
-                                        <span className="min-w-0 truncate text-slate-300">{test.name}</span>
-                                        <span className={test.expectedResult ? 'text-emerald-300' : 'text-rose-300'}>
+                                    <div key={test.name} className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-[#f8fafc] px-3 py-2 text-sm">
+                                        <span className="min-w-0 truncate text-slate-700">{test.name}</span>
+                                        <span className={test.expectedResult ? 'text-emerald-700' : 'text-rose-700'}>
                                             {formatDecision(test.expectedResult)}
                                         </span>
                                     </div>
                                 ))}
                             </div>
                             <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-                                <Star size={13} />
+                                <ShieldCheck size={13} />
                                 {currentLevel.hiddenTests.length} hidden edge {currentLevel.hiddenTests.length === 1 ? 'case' : 'cases'} run on evaluate
                             </div>
                         </div>
 
-                        <div className="flex-1 min-h-[220px] border-t border-slate-800">
+                        <div className="flex-1 min-h-[220px]">
                             <Console logs={logs} />
                         </div>
                     </div>
                 </div>
 
-                <footer className="h-16 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between px-6 shrink-0 backdrop-blur-md">
+                <footer className="h-16 border-t border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
                     <button
                         onClick={handleHint}
-                        className="flex items-center gap-2 text-sm text-slate-400 hover:text-emerald-400 transition-colors px-3 py-2 rounded-md hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 text-sm text-slate-600 hover:text-emerald-800 transition-colors px-3 py-2 rounded-md hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed"
                         disabled={currentLevel.hints.length === 0}
                     >
                         <Lightbulb size={16} />
@@ -334,11 +334,11 @@ export default function Dashboard() {
 
                     <button
                         onClick={handleEvaluate}
-                        className="group relative flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-2.5 rounded-lg font-semibold transition-all shadow-lg shadow-emerald-900/20 active:translate-y-0.5"
+                        className="group relative flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-8 py-2.5 rounded-lg font-semibold transition-all shadow-sm shadow-emerald-700/20 active:translate-y-0.5"
                     >
                         <Play size={18} className="fill-current" />
                         Evaluate Policy
-                        <div className="absolute inset-0 rounded-lg ring-2 ring-white/20 group-hover:ring-white/40 transition-all" />
+                        <div className="absolute inset-0 rounded-lg ring-1 ring-white/20 group-hover:ring-white/40 transition-all" />
                     </button>
                 </footer>
 
