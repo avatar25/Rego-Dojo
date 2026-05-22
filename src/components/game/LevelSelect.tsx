@@ -9,11 +9,11 @@ interface LevelSelectProps {
     currentLevelId: string;
     completedLevelIds: string[];
     bestStreak: number;
-    tracks: LearningTrack[];
+    tracks?: LearningTrack[];
     onSelectLevel: (levelId: string, isChallengeUnlocked: boolean) => void;
 }
 
-export const LevelSelect = ({ levels, categories, currentLevelId, completedLevelIds, bestStreak, tracks, onSelectLevel }: LevelSelectProps) => {
+export const LevelSelect = ({ levels, categories, currentLevelId, completedLevelIds, bestStreak, tracks = [], onSelectLevel }: LevelSelectProps) => {
     const totalXp = getTotalXp(completedLevelIds, levels);
     const badges = getEarnedBadges(completedLevelIds, bestStreak);
 
