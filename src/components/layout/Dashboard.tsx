@@ -5,8 +5,10 @@ import { InputViewer } from "../editor/InputViewer";
 import { Console } from "../game/Console";
 import { LevelSelect } from "../game/LevelSelect";
 import { WinModal } from "../game/WinModal";
-import { BookOpen, ClipboardCheck, Lightbulb, Play, Share2, ShieldCheck } from "lucide-react";
+import { BookOpen, ClipboardCheck, Code2, Lightbulb, Play, Share2, ShieldCheck } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
+import { LearnPanel } from "../learn/LearnPanel";
+import { getLearningLesson } from "../../lib/learning";
 import {
     buildShareUrl,
     formatDecision,
@@ -20,6 +22,8 @@ import type { EvaluationLog, LevelTest } from "../../lib/types";
 type TestRun = LevelTest & {
     suite: 'Visible' | 'Hidden';
 };
+
+type WorkspaceMode = 'challenge' | 'learn';
 
 const now = () => new Date().toLocaleTimeString();
 
@@ -41,6 +45,7 @@ export default function Dashboard() {
     const [lastXpAward, setLastXpAward] = useState(0);
     const [shareCopied, setShareCopied] = useState(false);
     const [sharedCompletion] = useState(() => readSharedCompletion());
+    const [workspaceMode, setWorkspaceMode] = useState<WorkspaceMode>('challenge');
 
     const totalXp = getTotalXp(completedLevels);
     const badges = getEarnedBadges(completedLevels, bestStreak);
@@ -48,6 +53,7 @@ export default function Dashboard() {
     const nextBadge = badges.find((badge) => !badge.earned);
     const progressPercent = Math.round((completedLevels.length / levels.length) * 100);
     const sampleInput = currentLevel.visibleTests[0]?.input ?? {};
+    const learningLesson = getLearningLesson(currentLevel.id);
 
     useEffect(() => {
         const level = levels.find(l => l.id === currentLevelId);
@@ -262,6 +268,28 @@ export default function Dashboard() {
                         <p className="mt-1 text-sm leading-relaxed text-slate-600 max-w-3xl break-words">{currentLevel.prompt}</p>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
+                        <div className="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-1">
+                            <button
+                                onClick={() => setWorkspaceMode('challenge')}
+                                className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${workspaceMode === 'challenge'
+                                    ? 'bg-white text-slate-950 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-800'
+                                    }`}
+                            >
+                                <Code2 size={15} />
+                                Challenge
+                            </button>
+                            <button
+                                onClick={() => setWorkspaceMode('learn')}
+                                className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${workspaceMode === 'learn'
+                                    ? 'bg-white text-slate-950 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-800'
+                                    }`}
+                            >
+                                <BookOpen size={15} />
+                                Learn
+                            </button>
+                        </div>
                         <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-[#f8fafc] px-3 py-2 text-sm text-slate-600 lg:flex">
                             <ShieldCheck size={16} className="text-emerald-700" />
                             {streak} run streak
@@ -282,62 +310,66 @@ export default function Dashboard() {
                     </div>
                 )}
 
-                <div className="flex-1 flex overflow-hidden">
-                    <div className="flex-1 flex flex-col min-w-0 border-r border-slate-200 bg-white relative group">
-                        <PolicyEditor
-                            code={code}
-                            onChange={(val) => setCode(val || "")}
-                        />
+                {workspaceMode === 'learn' ? (
+                    <LearnPanel level={currentLevel} lesson={learningLesson} />
+                ) : (
+                    <div className="flex-1 flex overflow-hidden">
+                        <div className="flex-1 flex flex-col min-w-0 border-r border-slate-200 bg-white relative group">
+                            <PolicyEditor
+                                code={code}
+                                onChange={(val) => setCode(val || "")}
+                            />
+                        </div>
+
+                        <div className="w-[430px] flex flex-col bg-[#f8fafc] shrink-0">
+                            <div className="h-[42%] min-h-[220px] border-b border-slate-200">
+                                <InputViewer data={sampleInput} title={`${currentLevel.visibleTests[0]?.name ?? 'Visible test'} input`} />
+                            </div>
+
+                            <div className="border-b border-slate-200 bg-white p-4">
+                                <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                                    <ClipboardCheck size={14} />
+                                    Visible tests
+                                </div>
+                                <div className="space-y-2">
+                                    {currentLevel.visibleTests.map((test) => (
+                                        <div key={test.name} className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-[#f8fafc] px-3 py-2 text-sm">
+                                            <span className="min-w-0 truncate text-slate-700">{test.name}</span>
+                                            <span className={test.expectedResult ? 'text-emerald-700' : 'text-rose-700'}>
+                                                {formatDecision(test.expectedResult)}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                                <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
+                                    <ShieldCheck size={13} />
+                                    {currentLevel.hiddenTests.length} hidden edge {currentLevel.hiddenTests.length === 1 ? 'case' : 'cases'} run on evaluate
+                                </div>
+                            </div>
+
+                            <div className="flex-1 min-h-[220px]">
+                                <Console logs={logs} />
+                            </div>
+                        </div>
                     </div>
-
-                    <div className="w-[430px] flex flex-col bg-[#f8fafc] shrink-0">
-                        <div className="h-[42%] min-h-[220px] border-b border-slate-200">
-                            <InputViewer data={sampleInput} title={`${currentLevel.visibleTests[0]?.name ?? 'Visible test'} input`} />
-                        </div>
-
-                        <div className="border-b border-slate-200 bg-white p-4">
-                            <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                                <ClipboardCheck size={14} />
-                                Visible tests
-                            </div>
-                            <div className="space-y-2">
-                                {currentLevel.visibleTests.map((test) => (
-                                    <div key={test.name} className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-[#f8fafc] px-3 py-2 text-sm">
-                                        <span className="min-w-0 truncate text-slate-700">{test.name}</span>
-                                        <span className={test.expectedResult ? 'text-emerald-700' : 'text-rose-700'}>
-                                            {formatDecision(test.expectedResult)}
-                                        </span>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
-                                <ShieldCheck size={13} />
-                                {currentLevel.hiddenTests.length} hidden edge {currentLevel.hiddenTests.length === 1 ? 'case' : 'cases'} run on evaluate
-                            </div>
-                        </div>
-
-                        <div className="flex-1 min-h-[220px]">
-                            <Console logs={logs} />
-                        </div>
-                    </div>
-                </div>
+                )}
 
                 <footer className="h-16 border-t border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
                     <button
-                        onClick={handleHint}
+                        onClick={workspaceMode === 'learn' ? () => setWorkspaceMode('challenge') : handleHint}
                         className="flex items-center gap-2 text-sm text-slate-600 hover:text-emerald-800 transition-colors px-3 py-2 rounded-md hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={currentLevel.hints.length === 0}
+                        disabled={workspaceMode === 'challenge' && currentLevel.hints.length === 0}
                     >
-                        <Lightbulb size={16} />
-                        <span>Need a hint?</span>
+                        {workspaceMode === 'learn' ? <Code2 size={16} /> : <Lightbulb size={16} />}
+                        <span>{workspaceMode === 'learn' ? 'Back to challenge' : 'Need a hint?'}</span>
                     </button>
 
                     <button
-                        onClick={handleEvaluate}
+                        onClick={workspaceMode === 'learn' ? () => setWorkspaceMode('challenge') : handleEvaluate}
                         className="group relative flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-8 py-2.5 rounded-lg font-semibold transition-all shadow-sm shadow-emerald-700/20 active:translate-y-0.5"
                     >
-                        <Play size={18} className="fill-current" />
-                        Evaluate Policy
+                        {workspaceMode === 'learn' ? <Code2 size={18} /> : <Play size={18} className="fill-current" />}
+                        {workspaceMode === 'learn' ? 'Open Challenge' : 'Evaluate Policy'}
                         <div className="absolute inset-0 rounded-lg ring-1 ring-white/20 group-hover:ring-white/40 transition-all" />
                     </button>
                 </footer>
