@@ -68,6 +68,7 @@ describe('LevelSelect', () => {
         );
         expect(screen.getByText('First five minutes')).toBeInTheDocument();
         expect(screen.getByText('Kubernetes basics')).toBeInTheDocument();
+        expect(screen.getByText('Concept map')).toBeInTheDocument();
         expect(screen.getByText('Level 1')).toBeInTheDocument();
         expect(screen.getByText('Level 2')).toBeInTheDocument();
         expect(screen.getByText('Level 3')).toBeInTheDocument();
@@ -87,10 +88,10 @@ describe('LevelSelect', () => {
         );
 
         fireEvent.click(screen.getByText('Level 1'));
-        expect(handleSelect).toHaveBeenCalledWith('1');
+        expect(handleSelect).toHaveBeenCalledWith('1', true);
     });
 
-    it('disables locked levels', () => {
+    it('keeps locked levels readable while reporting challenge lock state', () => {
         const handleSelect = vi.fn();
         render(
             <LevelSelect
@@ -104,12 +105,13 @@ describe('LevelSelect', () => {
         );
 
         const level2Button = screen.getByText('Level 2').closest('button');
-        expect(level2Button).toBeDisabled();
+        expect(level2Button).not.toBeDisabled();
+        expect(screen.getAllByText('read lesson').length).toBeGreaterThan(0);
 
         if (level2Button) {
             fireEvent.click(level2Button);
         }
-        expect(handleSelect).not.toHaveBeenCalled();
+        expect(handleSelect).toHaveBeenCalledWith('2', false);
     });
 
     it('enables level if previous level is completed', () => {
@@ -131,7 +133,7 @@ describe('LevelSelect', () => {
         if (level2Button) {
             fireEvent.click(level2Button);
         }
-        expect(handleSelect).toHaveBeenCalledWith('2');
+        expect(handleSelect).toHaveBeenCalledWith('2', true);
     });
 
     it('keeps lock progression across categories', () => {
@@ -148,6 +150,11 @@ describe('LevelSelect', () => {
         );
 
         const level3Button = screen.getByText('Level 3').closest('button');
-        expect(level3Button).toBeDisabled();
+        expect(level3Button).not.toBeDisabled();
+
+        if (level3Button) {
+            fireEvent.click(level3Button);
+        }
+        expect(handleSelect).toHaveBeenCalledWith('3', false);
     });
 });

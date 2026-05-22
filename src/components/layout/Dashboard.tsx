@@ -5,14 +5,17 @@ import { InputViewer } from "../editor/InputViewer";
 import { Console } from "../game/Console";
 import { LevelSelect } from "../game/LevelSelect";
 import { WinModal } from "../game/WinModal";
-import { BookOpen, ClipboardCheck, Code2, Lightbulb, Play, Share2, ShieldCheck } from "lucide-react";
+import { BookOpen, ClipboardCheck, Code2, Library, Lightbulb, Play, Share2, ShieldCheck } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { LearnPanel } from "../learn/LearnPanel";
+import { ReferencePanel } from "../reference/ReferencePanel";
+import { buildEvaluationTrace, buildFailureDiagnosis } from "../../lib/evaluation";
 import { getLearningLesson } from "../../lib/learning";
 import {
     buildShareUrl,
     formatDecision,
     getEarnedBadges,
+    isLevelUnlocked,
     getNextLevelId,
     getTotalXp,
     readSharedCompletion
@@ -23,7 +26,7 @@ type TestRun = LevelTest & {
     suite: 'Visible' | 'Hidden';
 };
 
-type WorkspaceMode = 'challenge' | 'learn';
+type WorkspaceMode = 'challenge' | 'learn' | 'reference';
 
 const now = () => new Date().toLocaleTimeString();
 
@@ -54,6 +57,11 @@ export default function Dashboard() {
     const progressPercent = Math.round((completedLevels.length / levels.length) * 100);
     const sampleInput = currentLevel.visibleTests[0]?.input ?? {};
     const learningLesson = getLearningLesson(currentLevel.id);
+    const canChallengeCurrentLevel = isLevelUnlocked(currentLevel.id, completedLevels, levels)
+        || completedLevels.includes(currentLevel.id);
+    const activeWorkspaceMode = workspaceMode === 'challenge' && !canChallengeCurrentLevel
+        ? 'learn'
+        : workspaceMode;
 
     useEffect(() => {
         const level = levels.find(l => l.id === currentLevelId);
@@ -73,8 +81,11 @@ export default function Dashboard() {
         setLogs(prev => [...prev, { type, message, details, timestamp: now() }]);
     };
 
-    const handleLevelSelect = (id: string) => {
+    const handleLevelSelect = (id: string, isChallengeUnlocked: boolean) => {
         setCurrentLevel(id);
+        if (!isChallengeUnlocked) {
+            setWorkspaceMode('learn');
+        }
     };
 
     const handleNextLevel = () => {
@@ -155,18 +166,21 @@ export default function Dashboard() {
             for (const test of tests) {
                 const result = opa.evaluate(test.input);
                 const passed = result === test.expectedResult;
+                const details: EvaluationLog['details'] = {
+                    testName: test.name,
+                    suite: test.suite,
+                    input: test.input,
+                    expected: test.expectedResult,
+                    actual: result,
+                    hint: test.hint,
+                    trace: buildEvaluationTrace(currentLevel, test, result),
+                    diagnosis: passed ? undefined : buildFailureDiagnosis(currentLevel, test, result)
+                };
 
                 if (passed) {
-                    addLog('success', `[PASS] ${test.suite}: ${test.name}`);
+                    addLog('success', `[PASS] ${test.suite}: ${test.name}`, details);
                 } else {
-                    addLog('error', `[FAIL] ${test.suite}: ${test.name}`, {
-                        testName: test.name,
-                        suite: test.suite,
-                        input: test.input,
-                        expected: test.expectedResult,
-                        actual: result,
-                        hint: test.hint
-                    });
+                    addLog('error', `[FAIL] ${test.suite}: ${test.name}`, details);
                     allPassed = false;
                 }
             }
@@ -258,8 +272,8 @@ export default function Dashboard() {
             </aside>
 
             <main className="flex-1 flex flex-col overflow-hidden relative">
-                <header className="min-h-16 border-b border-slate-200 bg-white flex items-start justify-between gap-6 px-6 py-3 shrink-0 z-10">
-                    <div className="min-w-0">
+                <header className="min-h-16 border-b border-slate-200 bg-white flex flex-col gap-3 px-6 py-3 shrink-0 z-10 xl:flex-row xl:items-start xl:justify-between xl:gap-6">
+                    <div className="w-full min-w-0 xl:max-w-3xl">
                         <div className="flex flex-wrap items-center gap-3">
                             <h1 className="text-lg font-semibold text-slate-950">{currentLevel.title}</h1>
                             <span className="rounded border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs text-slate-600">{currentLevel.difficulty}</span>
@@ -267,27 +281,39 @@ export default function Dashboard() {
                         </div>
                         <p className="mt-1 text-sm leading-relaxed text-slate-600 max-w-3xl break-words">{currentLevel.prompt}</p>
                     </div>
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex w-full shrink-0 flex-wrap items-center gap-2 xl:w-auto xl:justify-end">
                         <div className="flex items-center rounded-lg border border-slate-200 bg-slate-50 p-1">
                             <button
                                 onClick={() => setWorkspaceMode('challenge')}
-                                className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${workspaceMode === 'challenge'
+                                disabled={!canChallengeCurrentLevel}
+                                className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors disabled:cursor-not-allowed disabled:text-slate-300 ${activeWorkspaceMode === 'challenge'
                                     ? 'bg-white text-slate-950 shadow-sm'
                                     : 'text-slate-500 hover:text-slate-800'
                                     }`}
+                                title={canChallengeCurrentLevel ? 'Open challenge workspace' : 'Complete earlier challenges to unlock this exercise.'}
                             >
                                 <Code2 size={15} />
                                 Challenge
                             </button>
                             <button
                                 onClick={() => setWorkspaceMode('learn')}
-                                className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${workspaceMode === 'learn'
+                                className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${activeWorkspaceMode === 'learn'
                                     ? 'bg-white text-slate-950 shadow-sm'
                                     : 'text-slate-500 hover:text-slate-800'
                                     }`}
                             >
                                 <BookOpen size={15} />
                                 Learn
+                            </button>
+                            <button
+                                onClick={() => setWorkspaceMode('reference')}
+                                className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${activeWorkspaceMode === 'reference'
+                                    ? 'bg-white text-slate-950 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-800'
+                                    }`}
+                            >
+                                <Library size={15} />
+                                Reference
                             </button>
                         </div>
                         <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-[#f8fafc] px-3 py-2 text-sm text-slate-600 lg:flex">
@@ -310,7 +336,9 @@ export default function Dashboard() {
                     </div>
                 )}
 
-                {workspaceMode === 'learn' ? (
+                {activeWorkspaceMode === 'reference' ? (
+                    <ReferencePanel currentLesson={learningLesson} />
+                ) : activeWorkspaceMode === 'learn' ? (
                     <LearnPanel level={currentLevel} lesson={learningLesson} />
                 ) : (
                     <div className="flex-1 flex overflow-hidden">
@@ -356,20 +384,43 @@ export default function Dashboard() {
 
                 <footer className="h-16 border-t border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
                     <button
-                        onClick={workspaceMode === 'learn' ? () => setWorkspaceMode('challenge') : handleHint}
+                        onClick={activeWorkspaceMode === 'reference'
+                            ? () => setWorkspaceMode('learn')
+                            : activeWorkspaceMode === 'learn'
+                                ? () => setWorkspaceMode(canChallengeCurrentLevel ? 'challenge' : 'learn')
+                                : handleHint}
                         className="flex items-center gap-2 text-sm text-slate-600 hover:text-emerald-800 transition-colors px-3 py-2 rounded-md hover:bg-emerald-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        disabled={workspaceMode === 'challenge' && currentLevel.hints.length === 0}
+                        disabled={(activeWorkspaceMode === 'challenge' && currentLevel.hints.length === 0) || (activeWorkspaceMode === 'learn' && !canChallengeCurrentLevel)}
                     >
-                        {workspaceMode === 'learn' ? <Code2 size={16} /> : <Lightbulb size={16} />}
-                        <span>{workspaceMode === 'learn' ? 'Back to challenge' : 'Need a hint?'}</span>
+                        {activeWorkspaceMode === 'reference'
+                            ? <BookOpen size={16} />
+                            : activeWorkspaceMode === 'learn'
+                                ? <Code2 size={16} />
+                                : <Lightbulb size={16} />}
+                        <span>{activeWorkspaceMode === 'reference'
+                            ? 'Current lesson'
+                            : activeWorkspaceMode === 'learn'
+                                ? (canChallengeCurrentLevel ? 'Back to challenge' : 'Challenge locked')
+                                : 'Need a hint?'}</span>
                     </button>
 
                     <button
-                        onClick={workspaceMode === 'learn' ? () => setWorkspaceMode('challenge') : handleEvaluate}
-                        className="group relative flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-8 py-2.5 rounded-lg font-semibold transition-all shadow-sm shadow-emerald-700/20 active:translate-y-0.5"
+                        onClick={activeWorkspaceMode === 'reference'
+                            ? () => setWorkspaceMode(canChallengeCurrentLevel ? 'challenge' : 'learn')
+                            : activeWorkspaceMode === 'learn'
+                                ? () => setWorkspaceMode(canChallengeCurrentLevel ? 'challenge' : 'learn')
+                                : handleEvaluate}
+                        disabled={activeWorkspaceMode === 'learn' && !canChallengeCurrentLevel}
+                        className="group relative flex items-center gap-2 bg-emerald-700 hover:bg-emerald-600 text-white px-8 py-2.5 rounded-lg font-semibold transition-all shadow-sm shadow-emerald-700/20 active:translate-y-0.5 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:shadow-none"
                     >
-                        {workspaceMode === 'learn' ? <Code2 size={18} /> : <Play size={18} className="fill-current" />}
-                        {workspaceMode === 'learn' ? 'Open Challenge' : 'Evaluate Policy'}
+                        {activeWorkspaceMode === 'challenge'
+                            ? <Play size={18} className="fill-current" />
+                            : <Code2 size={18} />}
+                        {activeWorkspaceMode === 'reference'
+                            ? (canChallengeCurrentLevel ? 'Open Challenge' : 'Open Lesson')
+                            : activeWorkspaceMode === 'learn'
+                                ? (canChallengeCurrentLevel ? 'Open Challenge' : 'Complete Previous Level')
+                                : 'Evaluate Policy'}
                         <div className="absolute inset-0 rounded-lg ring-1 ring-white/20 group-hover:ring-white/40 transition-all" />
                     </button>
                 </footer>

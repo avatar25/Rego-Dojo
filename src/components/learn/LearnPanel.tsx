@@ -1,6 +1,7 @@
-import { ArrowRight, BookOpen, CheckCircle2, GitBranch, ShieldCheck, Sparkles } from 'lucide-react';
+import { ArrowRight, BookOpen, BriefcaseBusiness, CheckCircle2, GitBranch, ShieldCheck, Sparkles } from 'lucide-react';
 import type { Level } from '../../lib/types';
 import type { LearningLesson } from '../../lib/learning';
+import { getTracksForLevel } from '../../lib/tracks';
 
 interface LearnPanelProps {
   level: Level;
@@ -8,6 +9,8 @@ interface LearnPanelProps {
 }
 
 export const LearnPanel = ({ level, lesson }: LearnPanelProps) => {
+  const tracks = getTracksForLevel(level.id);
+
   return (
     <div className="flex-1 overflow-y-auto bg-[#f6f8fb]">
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-6 py-6">
@@ -17,13 +20,16 @@ export const LearnPanel = ({ level, lesson }: LearnPanelProps) => {
               <div>
                 <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-emerald-700">
                   <BookOpen size={15} />
-                  Learn the idea
+                  Concept bridge
                 </div>
                 <h2 className="max-w-2xl text-3xl font-bold tracking-tight text-slate-950">
                   {lesson.concept}
                 </h2>
                 <p className="mt-4 max-w-2xl text-sm leading-6 text-slate-600">
                   {lesson.creatureWorld}
+                </p>
+                <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-700">
+                  {lesson.productionUseCase}
                 </p>
               </div>
 
@@ -33,6 +39,11 @@ export const LearnPanel = ({ level, lesson }: LearnPanelProps) => {
                 <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-1 text-emerald-800">
                   {level.difficulty}
                 </span>
+                {tracks.map((track) => (
+                  <span key={track.id} className="rounded border border-slate-200 bg-white px-2 py-1 text-slate-600">
+                    {track.title}
+                  </span>
+                ))}
               </div>
             </div>
 
@@ -45,16 +56,16 @@ export const LearnPanel = ({ level, lesson }: LearnPanelProps) => {
                     <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-amber-700">
                       <Sparkles size={20} />
                     </div>
-                    <div className="text-sm font-semibold text-slate-900">Creature facts</div>
-                    <div className="mt-1 text-xs leading-5 text-slate-500">types, badges, moves, limits</div>
+                    <div className="text-sm font-semibold text-slate-900">Analogy</div>
+                    <div className="mt-1 text-xs leading-5 text-slate-500">creature facts make the rule shape visible</div>
                   </div>
                   <GitBranch size={22} className="text-slate-400" />
                   <div className="rounded-lg border border-emerald-200 bg-white p-4 shadow-sm">
                     <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
                       <ShieldCheck size={20} />
                     </div>
-                    <div className="text-sm font-semibold text-slate-900">Policy decision</div>
-                    <div className="mt-1 text-xs leading-5 text-slate-500">allow only when facts prove it</div>
+                    <div className="text-sm font-semibold text-slate-900">Production rule</div>
+                    <div className="mt-1 text-xs leading-5 text-slate-500">apply the same pattern to real requests</div>
                   </div>
                 </div>
               </div>
@@ -65,12 +76,12 @@ export const LearnPanel = ({ level, lesson }: LearnPanelProps) => {
         <section className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/50">
-              <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Sample input</div>
+              <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Analogy input</div>
               <pre className="max-h-[420px] overflow-auto rounded-md bg-slate-950 p-4 text-xs leading-5 text-slate-100"><code>{lesson.sampleInput}</code></pre>
             </div>
 
             <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/50">
-              <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Rego pattern</div>
+              <div className="mb-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Production Rego pattern</div>
               <pre className="max-h-[420px] overflow-auto rounded-md bg-slate-950 p-4 text-xs leading-5 text-slate-100"><code>{lesson.samplePolicy}</code></pre>
             </div>
           </div>
@@ -82,6 +93,24 @@ export const LearnPanel = ({ level, lesson }: LearnPanelProps) => {
               <div className="mt-4 rounded-md border border-emerald-200 bg-emerald-50 p-3 text-sm leading-6 text-emerald-900">
                 {lesson.bridge}
               </div>
+            </div>
+
+            <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/50">
+              <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                <BriefcaseBusiness size={14} />
+                Production context
+              </div>
+              <p className="text-sm leading-6 text-slate-700">{lesson.productionUseCase}</p>
+              {tracks.length > 0 && (
+                <div className="mt-4 flex flex-col gap-2">
+                  {tracks.map((track) => (
+                    <div key={track.id} className="rounded-md border border-slate-200 bg-slate-50 p-3">
+                      <div className="text-sm font-semibold text-slate-900">{track.title}</div>
+                      <div className="mt-1 text-xs leading-5 text-slate-500">{track.description}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/50">

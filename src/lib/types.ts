@@ -39,6 +39,14 @@ export type LevelCategory = {
   levels: Level[];
 };
 
+export type LearningTrack = {
+  id: string;
+  title: string;
+  description: string;
+  status: 'active' | 'planned';
+  levelIds: Level['id'][];
+};
+
 export type EvaluationLog = {
   type: 'info' | 'success' | 'error';
   message: string;
@@ -50,5 +58,15 @@ export type EvaluationLog = {
     expected: Decision;
     actual: Decision;
     hint: string;
+    diagnosis?: {
+      summary: string;
+      inputPath: string;
+      nextStep: string;
+    };
+    trace?: {
+      label: string;
+      status: 'pass' | 'fail' | 'info';
+      detail: string;
+    }[];
   };
 };
