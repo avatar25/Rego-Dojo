@@ -47,6 +47,20 @@ export type LearningTrack = {
   levelIds: Level['id'][];
 };
 
+export type CapstoneProject = {
+  id: string;
+  title: string;
+  trackId: LearningTrack['id'];
+  summary: string;
+  scenario: string;
+  outcome: string;
+  difficulty: 'Guided' | 'Independent' | 'Advanced';
+  prerequisiteLevelIds: Level['id'][];
+  deliverables: string[];
+  acceptanceChecks: string[];
+  starterPolicy: string;
+};
+
 export type EvaluationLog = {
   type: 'info' | 'success' | 'error';
   message: string;

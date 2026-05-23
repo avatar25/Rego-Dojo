@@ -5,9 +5,10 @@ import { InputViewer } from "../editor/InputViewer";
 import { Console } from "../game/Console";
 import { LevelSelect } from "../game/LevelSelect";
 import { WinModal } from "../game/WinModal";
-import { BookOpen, ClipboardCheck, Code2, FileJson, Library, Lightbulb, ListChecks, Menu, Play, Share2, ShieldCheck, Terminal, X } from "lucide-react";
+import { BookOpen, BriefcaseBusiness, ClipboardCheck, Code2, FileJson, Library, Lightbulb, ListChecks, Menu, Play, Share2, ShieldCheck, Terminal, X } from "lucide-react";
 import { useGameStore } from "../../store/gameStore";
 import { LearnPanel } from "../learn/LearnPanel";
+import { CapstonePanel } from "../projects/CapstonePanel";
 import { ReferencePanel } from "../reference/ReferencePanel";
 import { buildEvaluationTrace, buildFailureDiagnosis } from "../../lib/evaluation";
 import { getLearningLesson } from "../../lib/learning";
@@ -27,7 +28,7 @@ type TestRun = LevelTest & {
     suite: 'Visible' | 'Hidden';
 };
 
-type WorkspaceMode = 'challenge' | 'learn' | 'reference';
+type WorkspaceMode = 'challenge' | 'learn' | 'reference' | 'projects';
 type ChallengePane = 'editor' | 'input' | 'tests' | 'feedback';
 
 const now = () => new Date().toLocaleTimeString();
@@ -385,6 +386,16 @@ export default function Dashboard() {
                                 <Library size={15} />
                                 Reference
                             </button>
+                            <button
+                                onClick={() => setWorkspaceMode('projects')}
+                                className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors ${activeWorkspaceMode === 'projects'
+                                    ? 'bg-white text-slate-950 shadow-sm'
+                                    : 'text-slate-500 hover:text-slate-800'
+                                    }`}
+                            >
+                                <BriefcaseBusiness size={15} />
+                                Projects
+                            </button>
                         </div>
                         <div className="hidden items-center gap-2 rounded-lg border border-slate-200 bg-[#f8fafc] px-3 py-2 text-sm text-slate-600 lg:flex">
                             <ShieldCheck size={16} className="text-emerald-700" />
@@ -406,7 +417,9 @@ export default function Dashboard() {
                     </div>
                 )}
 
-                {activeWorkspaceMode === 'reference' ? (
+                {activeWorkspaceMode === 'projects' ? (
+                    <CapstonePanel completedLevelIds={completedLevels} onSelectLevel={handleLevelSelect} />
+                ) : activeWorkspaceMode === 'reference' ? (
                     <ReferencePanel currentLesson={learningLesson} />
                 ) : activeWorkspaceMode === 'learn' ? (
                     <LearnPanel level={currentLevel} lesson={learningLesson} />
@@ -474,6 +487,8 @@ export default function Dashboard() {
                     <button
                         onClick={activeWorkspaceMode === 'reference'
                             ? () => setWorkspaceMode('learn')
+                            : activeWorkspaceMode === 'projects'
+                                ? () => setWorkspaceMode('reference')
                             : activeWorkspaceMode === 'learn'
                                 ? () => setWorkspaceMode(canChallengeCurrentLevel ? 'challenge' : 'learn')
                                 : handleHint}
@@ -482,11 +497,15 @@ export default function Dashboard() {
                     >
                         {activeWorkspaceMode === 'reference'
                             ? <BookOpen size={16} />
+                            : activeWorkspaceMode === 'projects'
+                                ? <Library size={16} />
                             : activeWorkspaceMode === 'learn'
                                 ? <Code2 size={16} />
                                 : <Lightbulb size={16} />}
                         <span>{activeWorkspaceMode === 'reference'
                             ? 'Current lesson'
+                            : activeWorkspaceMode === 'projects'
+                                ? 'Open reference'
                             : activeWorkspaceMode === 'learn'
                                 ? (canChallengeCurrentLevel ? 'Back to challenge' : 'Challenge locked')
                                 : 'Need a hint?'}</span>
@@ -495,6 +514,8 @@ export default function Dashboard() {
                     <button
                         onClick={activeWorkspaceMode === 'reference'
                             ? () => setWorkspaceMode(canChallengeCurrentLevel ? 'challenge' : 'learn')
+                            : activeWorkspaceMode === 'projects'
+                                ? () => setWorkspaceMode(canChallengeCurrentLevel ? 'challenge' : 'learn')
                             : activeWorkspaceMode === 'learn'
                                 ? () => setWorkspaceMode(canChallengeCurrentLevel ? 'challenge' : 'learn')
                                 : handleEvaluate}
@@ -506,6 +527,8 @@ export default function Dashboard() {
                             : <Code2 size={18} />}
                         {activeWorkspaceMode === 'reference'
                             ? (canChallengeCurrentLevel ? 'Open Challenge' : 'Open Lesson')
+                            : activeWorkspaceMode === 'projects'
+                                ? (canChallengeCurrentLevel ? 'Open Challenge' : 'Open Lesson')
                             : activeWorkspaceMode === 'learn'
                                 ? (canChallengeCurrentLevel ? 'Open Challenge' : 'Complete Previous Level')
                                 : 'Evaluate Policy'}
